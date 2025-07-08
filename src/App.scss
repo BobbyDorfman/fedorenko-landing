@@ -1,0 +1,43 @@
+/* App.scss */
+* {
+  user-select: none;         // запрещает выделение текста
+  -webkit-user-select: none; // Safari
+  -ms-user-select: none;     // IE/Edge
+  caret-color: transparent;  // убирает мигающий курсор (строку ввода)
+  outline: none;             // убирает рамку при фокусе
+}
+
+.app main {
+  scroll-snap-type: y mandatory;
+  overflow-y: scroll;
+  height: 100vh;
+  overflow: hidden;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  scroll-behavior: smooth;
+  cursor: default;  
+}
+
+main {
+  height: 100vh;
+  overflow: hidden; // отключаем стандартный scroll
+}
+
+.slide-section {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  scroll-snap-align: start;
+}
+
+input, textarea {
+  user-select: auto;
+  caret-color: auto;
+  outline: auto;
+}

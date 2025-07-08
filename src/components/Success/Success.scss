@@ -1,0 +1,13 @@
+.success {
+  text-align: center;
+
+  &__title {
+    font-size: 1.8em;
+    margin-bottom: 1rem;
+  }
+
+  &__text {
+    font-size: 1.1em;
+    color: #333;
+  }
+}

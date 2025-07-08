@@ -1,0 +1,18 @@
+.slide-section {
+  height: 100vh; // занимать 100% высоты окна
+  scroll-snap-align: start;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+//   padding: 40px;
+  box-sizing: border-box;
+
+  opacity: 0;
+  transform: translateY(50px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+
+  &.visible {
+    opacity: 1;
+    // transform: translateY(0);
+  }
+}

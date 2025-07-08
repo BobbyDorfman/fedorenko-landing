@@ -1,0 +1,196 @@
+.about-me {
+    position: relative;
+    min-height: 100vh;
+    height: auto; // позволяет растягиваться при необходимости
+    width: 100%;
+    background-color: #fa682f;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    // &__content {
+    //     display: flex;
+    //     flex-wrap: wrap;
+    //     justify-content: center;
+    //     align-items: center;
+    //     gap: clamp(16px, 4vw, 40px);
+    //     padding: 5vh clamp(16px, 5vw, 60px);
+    //     width: 100%;
+    //     margin: 0 auto;
+    // }
+
+    &__box {
+        flex: 1 1 45%;
+        max-width: 85%;
+        aspect-ratio: 1212.4 / 614.4; // сохраняем пропорции
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+
+    &__box-border {
+        width: 100%;
+        height: 100%;
+        background-color: #ffd83f;
+        border-radius: 20px;
+        padding: 17px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 2px solid #000000; // ← добавили тонкую чёрную рамку
+    }
+
+    &__box-border-inside {
+        background-color: #ffffff;
+        border-radius: 20px;
+        padding: 40px;
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        border: 2px solid #000000;
+        align-items: stretch;
+    }
+
+    &__text-content {
+        width: 100%;
+        height: auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    &__title {
+        font-family: 'Rubik', sans-serif;
+        font-size: clamp(28px, 2.5vw, 48px); // минимальный 28, идеал зависит от vw, максимум 48px
+        font-weight: 700;
+        line-height: 1.2;
+        margin: 0;
+        color: #000;
+        display: inline-block;
+        background-color: #ffd83f;
+        margin: 11px auto 0;
+        padding: 12px 24px;
+        border-radius: 16px;
+        border: 2px solid #000000; // ← добавили тонкую чёрную рамку
+    }
+
+    &__text {
+        font-family: 'Atkinson Hyperlegible', sans-serif;
+        font-size: clamp(14px, 1vw, 18px); // минимальный 14, идеал vw, максимум 18px
+        font-weight: 400;
+        color: #000;
+        display: inline-block;
+    }
+
+    &__photo-wrapper {
+        flex: 1 1 40%;
+        max-width: 30%;
+        aspect-ratio: 451.4 / 481.4;
+        transform: rotate(5.8deg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+
+    &__photo {
+        width: 100%;
+        height: auto;
+        display: block;
+        object-fit: contain;
+    }
+
+    .decor {
+        position: absolute;
+        z-index: 1;
+        width: 20%; // адаптивный размер от ширины wrapper-а
+        height: auto;
+        pointer-events: none;
+        user-select: none;
+
+        &--wave {
+            width: clamp(120px, 20vw, 300px);
+            top: 50%;
+            left: 45%;
+            transform: rotate(173deg);
+        }
+
+        &--star {
+            width: clamp(60px, 10vw, 150px);
+            top: -18%;
+            right: 80%;
+            transform: rotate(-5deg);
+            animation: spin 12s linear infinite; // крутится бесконечно
+        }
+
+        &--pen {
+            width: 30%;
+            bottom: -24%;
+            left: 86%;
+            transform: rotate(74deg);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .about-me__content {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .about-me__box,
+        .about-me__photo-wrapper {
+            flex: 1 1 100%;
+            aspect-ratio: auto;
+        }
+
+        .about-me__box-border-inside {
+            padding: clamp(20px, 5vw, 40px);
+        }
+    }
+    
+    // Когда ширина экрана больше 1440px
+    @media (min-width: 1440px) {
+        // Количество дополнительных пикселей сверх базовых 1440:
+        $extra: calc(100vw - 1440px);
+        // Увеличиваем заголовок пропорционально:
+        // 67px — это максимальный размер при 1440px;
+        // 0.05 — коэффициент масштабирования (подбирайте под дизайн).
+        .about-me__title {
+            font-size: calc(36px + (100vw - 1440px) * 0.05);
+        }
+
+        // Аналогично для текста:
+        .about-me__text {
+            font-size: calc(14px + (100vw - 1440px) * 0.03);
+        }
+
+        // И увеличиваем декоративные элементы:
+        .decor {
+            &--wave {
+                width: calc(300px + (100vw - 1440px) * 0.3);
+                left: 42%;
+                top: 47%;
+            }
+
+            &--star {
+            width: calc(150px + $extra * 0.08);
+            right: calc(80% + $extra * 0.015);
+            top: calc(-18% + $extra * 0.003);
+            }
+        }
+    }
+
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+}

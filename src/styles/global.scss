@@ -1,0 +1,17 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body, html, #root {
+  height: 100%;
+  font-family: sans-serif;
+  scroll-behavior: smooth;
+  scroll-snap-type: y mandatory;
+//   overflow: hidden;
+}
+
+main > div {
+  scroll-snap-align: start;
+}
