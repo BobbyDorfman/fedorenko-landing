@@ -1,13 +1,214 @@
 .experience {
-  text-align: center;
+    height: 100%;
+    width: 100%;
+    background-color: #43b069;
+    display: flex;
+    justify-content: center;
+    // align-items: center;
+    padding: 80px 0;
 
-  &__title {
-    font-size: 1.8em;
-    margin-bottom: 1rem;
-  }
+    &__box {
+        width: 80%;
+        // height: 80%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        // justify-content: center;
+        position: relative;
+    }
 
-  &__text {
-    font-size: 1.1em;
-    color: #333;
-  }
+    &__title {
+        text-align: center;
+        font-family: "Rubik", sans-serif;
+        font-size: 	clamp(24px, 2.634vw, 48px);
+        font-weight: 700;
+        line-height: 1.5;
+        color: #000;
+        margin-bottom: 40px;
+        background: #ffc93c;
+        display: inline-block;
+        // padding: 10px 30px;
+        // border-radius: 15px;
+        padding: 12px 24px;
+        border-radius: 16px;
+        border: 2px solid #000000;
+    }
+
+    &__grid {
+        display: flex;
+        align-items: flex-start;
+        margin-left: -20px;
+        width: auto;
+        position: relative; // для z-index
+        z-index: 2;
+        // width: 100%;
+        // display: flex;
+        // flex-wrap: wrap;
+        // gap: 20px;
+        // width: 100%;
+        // display: grid;
+        // grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        // gap: 20px;
+        // align-items: start;
+    }
+
+    &__column {
+        padding-left: 20px; // расстояние между колонками
+        background-clip: padding-box;
+    }
+
+    &__card {
+        background-color: #fff;
+        margin-bottom: 20px; // расстояние между карточками по вертикали
+        padding: 20px;
+        border-radius: 20px;
+        box-shadow: 0 0 0 2px #000;
+        flex: 1 1 280px; // min 280px, остальное — растягиваем
+
+        h3 {
+            font-family: "Rubik", sans-serif;
+            font-size: clamp(16px, 1.465vw, 24px);
+            font-weight: 700;
+            line-height: 1.5;
+            color: #000;
+        }
+
+        p {
+            font-family: 'Atkinson Hyperlegible', sans-serif;
+            font-size: clamp(13px, 1.098vw, 17px);
+            font-weight: 400;
+            line-height: 1.4;
+            color: #000;
+        }
+
+        &--popup {
+            cursor: pointer;
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-items: center;
+
+            .experience__folder-icon {
+                width: 80px;
+                margin: auto auto auto 15px;
+            }
+        }
+    }
+
+    .decor {
+        position: absolute;
+        width: 20%; // адаптивный размер от ширины wrapper-а
+        height: auto;
+        pointer-events: none;
+        user-select: none;
+
+        &--notebook {
+            z-index: 1;
+            width: 13%;
+            top: 46%;
+            left: 90%;
+            transform: rotate(349deg);
+        }
+
+        &--star {
+            z-index: 2;
+            width: 10%;
+            top: 14%;
+            right: 3%;
+            transform: rotate(-10deg);
+        }
+
+        &--star2 {
+            z-index: 2;
+            width: 10%;
+            top: 6%;
+            right: -1%;
+            transform: rotate(-10deg);
+        }
+
+        &--backpack {
+            z-index: 1;
+            width: 15%;
+            top: 20%;
+            right: 91%;
+            transform: rotate(38deg);
+        }
+        
+        &--shape_blue {
+            z-index: 1;
+            width: 8%;
+            top: -5%;
+            right: 83%;
+            transform: rotate(39deg);
+        }
+        
+        &--squiggly_yellow {
+            z-index: 1;
+            width: 18%;
+            top: 65%;
+            right: 84%;
+            transform: rotate(196deg);
+        }
+    }
+}
+
+// Попап
+.popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &__content {
+        background: #fff;
+        padding: 30px;
+        border-radius: 20px;
+        max-width: 500px;
+        width: 90%;
+        position: relative;
+
+        h3 {
+        margin-top: 0;
+        }
+
+        .popup__list {
+        margin-top: 20px;
+        list-style: none;
+        padding: 0;
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        a {
+            color: #000;
+            text-decoration: underline;
+        }
+        }
+    }
+
+    &__close {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 24px;
+        background: none;
+        border: none;
+        cursor: pointer;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .experience__grid {
+        flex-direction: column;
+    }
+
+    .experience__card {
+        width: 100%;
+    }
 }
