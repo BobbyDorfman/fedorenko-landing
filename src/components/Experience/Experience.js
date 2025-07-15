@@ -4,12 +4,12 @@ import "./Experience.scss";
 import Masonry from 'react-masonry-css';
 
 // Импортируем изображения
-import Folder from "../../../public/image/Simple_Bold_Lined_Folder.png";
-import Notebook from "../../../public/image/Simple_Lined_Pen_with_Notebook.png";
-import Star from "../../../public/image/Bright_Vibrant_Lined_Stars.png";
-import Backpack from "../../../public/image/Simple_Lined_Backpack.png";
-import Shape_Blue from "../../../public/image/Abstract_Shape_Illustration_Blue.png";
-import Squiggly_Yellow from "../../../public/image/Bright_Vibrant_Lined_Squiggly_Yellow.png";
+import Folder from "../../image/Simple_Bold_Lined_Folder.png";
+import Notebook from "../../image/Simple_Lined_Pen_with_Notebook.png";
+import Star from "../../image/Bright_Vibrant_Lined_Stars.png";
+import Backpack from "../../image/Simple_Lined_Backpack.png";
+import Shape_Blue from "../../image/Abstract_Shape_Illustration_Blue.png";
+import Squiggly_Yellow from "../../image/Bright_Vibrant_Lined_Squiggly_Yellow.png";
 
 function Experience() {
     const [isPopupOpen, setIsPopupOpen] = useState(false);

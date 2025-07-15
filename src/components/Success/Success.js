@@ -2,8 +2,8 @@ import React from "react";
 import "./Success.scss";
 
 // Импортируем изображения
-import Apple from "../../../public/image/Simple_Lined_Apple.png";
-import Shape from "../../../public/image/Abstract_Shape_Illustration.png";
+import Apple from "../../image/Simple_Lined_Apple.png";
+import Shape from "../../image/Abstract_Shape_Illustration.png";
 
 function Success() {
     return (

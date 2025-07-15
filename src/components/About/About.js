@@ -2,10 +2,10 @@ import React from "react";
 import "./About.scss";
 
 // Импортируем изображения
-import Pen from "../../../public/image/Simple_Lined_Yellow_Pen.png";
-import HeaderPhoto from "../../../public/image/header.png";
-import Wave from "../../../public/image/Bright_Vibrant_Lined_Squiggly.png";
-import Star from "../../../public/image/Bright_Vibrant_Lined_Stars.png";
+import Pen from "../../image/Simple_Lined_Yellow_Pen.png";
+import HeaderPhoto from "../../image/header.png";
+import Wave from "../../image/Bright_Vibrant_Lined_Squiggly.png";
+import Star from "../../image/Bright_Vibrant_Lined_Stars.png";
 
 function About() {
     return (

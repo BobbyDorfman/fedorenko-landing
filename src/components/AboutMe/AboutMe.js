@@ -2,11 +2,11 @@ import React from "react";
 import "./AboutMe.scss";
 
 // Импортируем изображения
-import HeaderPhoto from "../../../public/image/header.png";
-import Wave from "../../../public/image/Bright_Vibrant_Lined_Squiggly.png";
-import Star from "../../../public/image/Bright_Vibrant_Lined_Stars.png";
-import Apple from "../../../public/image/Simple_Lined_Apple.png";
-import Shape from "../../../public/image/Abstract_Shape_Illustration.png";
+import HeaderPhoto from "../../image/header.png";
+import Wave from "../../image/Bright_Vibrant_Lined_Squiggly.png";
+import Star from "../../image/Bright_Vibrant_Lined_Stars.png";
+import Apple from "../../image/Simple_Lined_Apple.png";
+import Shape from "../../image/Abstract_Shape_Illustration.png";
 
 function AboutMe() {
   return (
