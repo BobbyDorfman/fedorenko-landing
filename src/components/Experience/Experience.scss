@@ -8,12 +8,10 @@
     padding: 80px 0;
 
     &__box {
-        width: 80%;
-        // height: 80%;
+        width: 75%;
         display: flex;
         flex-direction: column;
         align-items: center;
-        // justify-content: center;
         position: relative;
     }
 
@@ -67,15 +65,18 @@
 
         h3 {
             font-family: "Rubik", sans-serif;
-            font-size: clamp(16px, 1.465vw, 24px);
+            // font-size: clamp(16px, 1.465vw, 24px);
+            font-size: clamp(28px, 2vw, 48px);
             font-weight: 700;
-            line-height: 1.5;
+            line-height: 1;
             color: #000;
+            margin: auto auto 10px auto;
         }
 
         p {
             font-family: 'Atkinson Hyperlegible', sans-serif;
-            font-size: clamp(13px, 1.098vw, 17px);
+            // font-size: clamp(13px, 1.098vw, 17px);
+            font-size: clamp(20px, 1vw, 24px);
             font-weight: 400;
             line-height: 1.4;
             color: #000;
@@ -205,6 +206,7 @@
 
 @media screen and (max-width: 768px) {
     .experience__grid {
+        width: 100%;
         flex-direction: column;
     }
 

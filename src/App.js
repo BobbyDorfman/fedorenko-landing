@@ -5,8 +5,8 @@ import About from "./components/About/About";
 import AboutMe from "./components/AboutMe/AboutMe";
 import Experience from "./components/Experience/Experience";
 import Success from "./components/Success/Success";
-import Reviews from "./components/Reviews/Reviews";
-import Contact from "./components/Contact/Contact";
+// import Reviews from "./components/Reviews/Reviews";
+// import Contact from "./components/Contact/Contact";
 import ScrollIndicator from "./components/ScrollIndicator/ScrollIndicator"; // точечная навигацию (dot navigation)
 import ScrollNavigation from "./components/ScrollNavigation/ScrollNavigation";
 import useScrollToSection from "./hooks/useScrollToSection"; 
@@ -24,18 +24,20 @@ function App() {
             <SlideSection id="about-me"><AboutMe /></SlideSection>
             <SlideSection id="experience"><Experience /></SlideSection>
             <SlideSection id="success"><Success /></SlideSection>
-            <SlideSection id="reviews"><Reviews /></SlideSection>
-            <SlideSection id="contact"><Contact /></SlideSection>
+            {/* <SlideSection id="reviews"><Reviews /></SlideSection> */}
+            {/* <SlideSection id="contact"><Contact /></SlideSection> */}
         </main>
         <ScrollIndicator
             current={currentSection}
-            total={6}
+            total={4}
+            // total={6}
             onDotClick={scrollToSection}
         />
         <ScrollNavigation
             currentSection={currentSection}
             setCurrentSection={setCurrentSection}
-            totalSections={6}
+            totalSections={4}
+            // totalSections={6}
         />
         </div>
     );

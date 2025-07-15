@@ -49,8 +49,8 @@ function BurgerMenu({ scrollToSection, currentSection }) {
         { label: "Обо мне", index: 1, id: "about-me" },
         { label: "Опыт", index: 2, id: "experience" },
         { label: "Успехи", index: 3, id: "success" },
-        { label: "Отзывы", index: 4, id: "reviews" },
-        { label: "Контакты", index: 5, id: "contact" }
+        // { label: "Отзывы", index: 4, id: "reviews" },
+        // { label: "Контакты", index: 5, id: "contact" }
     ];
 
     return (
