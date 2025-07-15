@@ -1,6 +1,10 @@
 import React from "react";
 import "./Success.scss";
 
+// Импортируем изображения
+import Apple from "../../../public/image/Simple_Lined_Apple.png";
+import Shape from "../../../public/image/Abstract_Shape_Illustration.png";
+
 function Success() {
     return (
         <section className="success" id="success">
@@ -38,8 +42,8 @@ function Success() {
                         </p>
                     </div>
                 </div>
-                <img src="/image/Simple_Lined_Apple.png" alt="Apple" className="decor decor--apple" />
-                <img src="/image/Abstract_Shape_Illustration.png" alt="Shape" className="decor decor--shape" />
+                <img src={Apple} alt="Apple" className="decor decor--apple" />
+                <img src={Shape} alt="Shape" className="decor decor--shape" />
             </div>
         </section>
     );

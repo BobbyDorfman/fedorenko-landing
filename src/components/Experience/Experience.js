@@ -2,7 +2,14 @@ import React, { useState } from "react";
 import Popup from "../Popup/Popup";
 import "./Experience.scss";
 import Masonry from 'react-masonry-css';
-// import folderIcon from "/КОДИНГ/Mama/fedorenko-landing/public/image/Simple_Bold_Lined_Folder.png";
+
+// Импортируем изображения
+import Folder from "../../../public/image/Simple_Bold_Lined_Folder.png";
+import Notebook from "../../../public/image/Simple_Lined_Pen_with_Notebook.png";
+import Star from "../../../public/image/Bright_Vibrant_Lined_Stars.png";
+import Backpack from "../../../public/image/Simple_Lined_Backpack.png";
+import Shape_Blue from "../../../public/image/Abstract_Shape_Illustration_Blue.png";
+import Squiggly_Yellow from "../../../public/image/Bright_Vibrant_Lined_Squiggly_Yellow.png";
 
 function Experience() {
     const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -43,16 +50,16 @@ function Experience() {
                     </div>
                     <div className="experience__card experience__card--popup" onClick={() => setIsPopupOpen(true)}>
                         <h3>Мои сертификаты тут →</h3>
-                        <img src="/image/Simple_Bold_Lined_Folder.png" alt="Folder" className="experience__folder-icon"/>
+                        <img src={Folder} alt="Folder" className="experience__folder-icon"/>
                     </div>
                 </Masonry>
             </div>
-            <img src="/image/Simple_Lined_Pen_with_Notebook.png" alt="Notebook" className="decor decor--notebook" />
-            <img src="/image/Bright_Vibrant_Lined_Stars.png" alt="Star" className="decor decor--star" />
-            <img src="/image/Bright_Vibrant_Lined_Stars.png" alt="Star" className="decor decor--star2" />
-            <img src="/image/Simple_Lined_Backpack.png" alt="Backpack" className="decor decor--backpack" />
-            <img src="/image/Abstract_Shape_Illustration_Blue.png" alt="Shape_Blue" className="decor decor--shape_blue" />
-            <img src="/image/Bright_Vibrant_Lined_Squiggly_Yellow.png" alt="Squiggly_Yellow" className="decor decor--squiggly_yellow" />
+            <img src={Notebook} alt="Notebook" className="decor decor--notebook" />
+            <img src={Star} alt="Star" className="decor decor--star" />
+            <img src={Star} alt="Star" className="decor decor--star2" />
+            <img src={Backpack} alt="Backpack" className="decor decor--backpack" />
+            <img src={Shape_Blue} alt="Shape_Blue" className="decor decor--shape_blue" />
+            <img src={Squiggly_Yellow} alt="Squiggly_Yellow" className="decor decor--squiggly_yellow" />
 
             <Popup isOpen={isPopupOpen} onClose={() => setIsPopupOpen(false)} title="Сертификаты и грамоты">
                 <ul>

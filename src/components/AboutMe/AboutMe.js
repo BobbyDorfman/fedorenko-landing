@@ -1,6 +1,13 @@
 import React from "react";
 import "./AboutMe.scss";
 
+// Импортируем изображения
+import HeaderPhoto from "../../../public/image/header.png";
+import Wave from "../../../public/image/Bright_Vibrant_Lined_Squiggly.png";
+import Star from "../../../public/image/Bright_Vibrant_Lined_Stars.png";
+import Apple from "../../../public/image/Simple_Lined_Apple.png";
+import Shape from "../../../public/image/Abstract_Shape_Illustration.png";
+
 function AboutMe() {
   return (
     <section className="about-me" id="about">
@@ -8,11 +15,11 @@ function AboutMe() {
             <div className="about-me__box-border">
                 <div className="about-me__box-border-inside">
                     <div className="about-me__photo-wrapper">
-                        <img src="/image/header.png" alt="photo" className="about-me__photo" />
-                        <img src="/image/Bright_Vibrant_Lined_Squiggly.png" alt="Wave" className="decor decor--wave" />
-                        <img src="/image/Bright_Vibrant_Lined_Stars.png" alt="Star" className="decor decor--star" />
-                        <img src="/image/Simple_Lined_Apple.png" alt="Apple" className="decor decor--apple" />
-                        <img src="/image/Abstract_Shape_Illustration.png" alt="Shape" className="decor decor--shape" />
+                        <img src={HeaderPhoto} alt="photo" className="about-me__photo" />
+                        <img src={Wave} alt="Wave" className="decor decor--wave" />
+                        <img src={Star} alt="Star" className="decor decor--star" />
+                        <img src={Apple} alt="Apple" className="decor decor--apple" />
+                        <img src={Shape} alt="Shape" className="decor decor--shape" />
                     </div>
                     <div className="about-me__text-content">
                         <h1 className="about-me__title">Обо мне!</h1>

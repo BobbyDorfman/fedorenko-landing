@@ -1,6 +1,12 @@
 import React from "react";
 import "./About.scss";
 
+// Импортируем изображения
+import Pen from "../../../public/image/Simple_Lined_Yellow_Pen.png";
+import HeaderPhoto from "../../../public/image/header.png";
+import Wave from "../../../public/image/Bright_Vibrant_Lined_Squiggly.png";
+import Star from "../../../public/image/Bright_Vibrant_Lined_Stars.png";
+
 function About() {
     return (
         <section className="about" id="about">
@@ -14,12 +20,12 @@ function About() {
                                 <p className="about__text">Учитель начальных классов</p>
                             </div>
                         </div>
-                        <img src="/image/Simple_Lined_Yellow_Pen.png" alt="Pen" className="decor decor--pen" />
+                        <img src={Pen} alt="Pen" className="decor decor--pen" />
                     </div>
                     <div className="about__photo-wrapper">
-                        <img src="/image/header.png" alt="photo" className="about__photo" />
-                        <img src="/image/Bright_Vibrant_Lined_Squiggly.png" alt="Wave" className="decor decor--wave" />
-                        <img src="/image/Bright_Vibrant_Lined_Stars.png" alt="Star" className="decor decor--star" />
+                        <img src={HeaderPhoto} alt="photo" className="about__photo" />
+                        <img src={Wave} alt="Wave" className="decor decor--wave" />
+                        <img src={Star} alt="Star" className="decor decor--star" />
                     </div>
                 </div>
             </div>
