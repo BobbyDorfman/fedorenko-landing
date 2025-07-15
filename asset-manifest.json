@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/fedorenko-landing/static/css/main.9008fb93.css",
+    "main.js": "/fedorenko-landing/static/js/main.d6bd9777.js",
+    "index.html": "/fedorenko-landing/index.html",
+    "main.9008fb93.css.map": "/fedorenko-landing/static/css/main.9008fb93.css.map",
+    "main.d6bd9777.js.map": "/fedorenko-landing/static/js/main.d6bd9777.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.9008fb93.css",
+    "static/js/main.d6bd9777.js"
+  ]
+}
