@@ -2,6 +2,9 @@ import React from "react";
 import "./Success.scss";
 
 // Импортируем изображения
+import Projector from "../../image/Simple_Lined_Screen_Projector.png";
+import Equipment from "../../image/Simple_Lined_Lab_Equipment.png";
+import Hands from "../../image/Single_Mother_Holding_Hands.png";
 import Apple from "../../image/Simple_Lined_Apple.png";
 import Shape from "../../image/Abstract_Shape_Illustration.png";
 
@@ -13,7 +16,7 @@ function Success() {
                 <div className="success__content">
                     <div className="success__card">
                         <div className="success__image-wrapper">
-                            <img src="/image/Simple_Lined_Screen_Projector.png" alt="Projector" className="decor decor--projector" />
+                            <img src={Projector} alt="Projector" className="decor decor--projector" />
                         </div>
                         <h3>Индивидуальный подход</h3>
                         <p>Каждый ребёнок — уникальный. 
@@ -23,7 +26,7 @@ function Success() {
                     </div>
                     <div className="success__card">
                         <div className="success__image-wrapper">
-                            <img src="/image/Simple_Lined_Lab_Equipment.png" alt="Equipment" className="decor decor--equipment" />
+                            <img src={Equipment} alt="Equipment" className="decor decor--equipment" />
                         </div>
                         <h3>Обучение через интерес</h3>
                         <p>Учёба должна быть увлекательной. 
@@ -33,7 +36,7 @@ function Success() {
                     </div>
                     <div className="success__card">
                         <div className="success__image-wrapper">
-                            <img src="/image/Single_Mother_Holding_Hands.png" alt="Hands" className="decor decor--hands" />
+                            <img src={Hands} alt="Hands" className="decor decor--hands" />
                         </div>
                         <h3>Сотрудничество с родителями</h3>
                         <p>Верю в силу команды. 
