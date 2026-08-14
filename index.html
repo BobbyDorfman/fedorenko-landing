@@ -1,0 +1,2357 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Suomen Polku — Финский на практике</title>
+<meta name="description" content="Финский язык для работы в магазине и повседневной жизни" />
+<meta name="theme-color" content="#2E7D53" />
+<style>
+  html, body { margin: 0; padding: 0; background: #FBF8F0; }
+  #root { min-height: 100vh; }
+</style>
+
+<!-- Import map: React/ReactDOM/lucide-react подгружаются с esm.sh, сборка не нужна -->
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.3.1",
+    "react-dom/client": "https://esm.sh/react-dom@18.3.1/client",
+    "lucide-react": "https://esm.sh/lucide-react@0.383.0?external=react"
+  }
+}
+</script>
+
+<!-- Babel Standalone: транспилирует JSX прямо в браузере -->
+<script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
+
+<!-- Tailwind CSS: в Claude.ai подключён автоматически, здесь нужно явно -->
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" data-type="module" data-presets="react">
+import React, { useState, useEffect, useRef, useMemo } from "react";
+import {
+  Flame, Check, X, ChevronRight, ChevronDown, Layers, Brain, PenLine,
+  Hand, Hash, Coffee, Users, CalendarDays, MessageCircle, Trees,
+  Footprints, ArrowLeft, RefreshCw, Plus, Trash2, Sparkles, Store,
+  BookOpen, ShoppingBasket, Croissant, Carrot, Apple, Milk, Beef,
+  SprayCan, Plug, Info, CreditCard, Boxes, ListChecks, ChefHat, BarChart3,
+  Zap, Quote, MessagesSquare, UserCircle, Search, Shuffle, Volume2, BookMarked, Mic2,
+} from "lucide-react";
+
+/* ---------------------------------------------------------
+   ДАННЫЕ: базовые темы
+--------------------------------------------------------- */
+const TOPICS_GENERAL = [
+  {
+    id: "greetings", fi: "Tervehdykset", ru: "Приветствия", icon: Hand,
+    words: [
+      { fi: "Hei", ru: "Привет", note: "неформальное приветствие, подходит почти всегда" },
+      { fi: "Terve", ru: "Здравствуй", note: "нейтрально-разговорное, между коллегами" },
+      { fi: "Kiitos", ru: "Спасибо", note: "универсальное «спасибо», подходит везде" },
+      { fi: "Ole hyvä", ru: "Пожалуйста", note: "ответ на «спасибо»" },
+      { fi: "Anteeksi", ru: "Извините", note: "и для «извините», и чтобы привлечь внимание" },
+      { fi: "Näkemiin", ru: "До свидания", note: "стандартное прощание, нейтрально-вежливое" },
+      { fi: "Hyvää huomenta", ru: "Доброе утро", note: "используется примерно до полудня" },
+      { fi: "Miten menee?", ru: "Как дела?", note: "обычно между коллегами, неформально" },
+      { fi: "Kiva tavata", ru: "Приятно познакомиться", note: "при знакомстве с новым человеком" },
+    ],
+  },
+  {
+    id: "pronouns", fi: "Persoonapronominit", ru: "Личные местоимения", icon: UserCircle,
+    words: [
+      { fi: "minä", ru: "я",
+        forms: [{ label: "родительный", value: "minun" }, { label: "партитив", value: "minua" }],
+        cases: { illative: "minuun", inessive: "minussa", elative: "minusta", adessive: "minulla", ablative: "minulta", allative: "minulle", essive: "minuna", translative: "minuksi", abessive: "minutta" },
+        example: { fi: "Minä olen töissä tänään.", ru: "Я сегодня на работе." } },
+      { fi: "sinä", ru: "ты",
+        forms: [{ label: "родительный", value: "sinun" }, { label: "партитив", value: "sinua" }],
+        cases: { illative: "sinuun", inessive: "sinussa", elative: "sinusta", adessive: "sinulla", ablative: "sinulta", allative: "sinulle", essive: "sinuna", translative: "sinuksi", abessive: "sinutta" },
+        example: { fi: "Oletko sinä uusi työntekijä?", ru: "Ты новый сотрудник?" } },
+      { fi: "hän", ru: "он / она",
+        forms: [{ label: "родительный", value: "hänen" }, { label: "партитив", value: "häntä" }],
+        cases: { illative: "häneen", inessive: "hänessä", elative: "hänestä", adessive: "hänellä", ablative: "häneltä", allative: "hänelle", essive: "hänenä", translative: "häneksi", abessive: "hänettä" },
+        example: { fi: "Hän työskentelee kassalla.", ru: "Он/она работает на кассе." } },
+      { fi: "me", ru: "мы",
+        forms: [{ label: "родительный", value: "meidän" }, { label: "партитив", value: "meitä" }],
+        cases: { illative: "meihin", inessive: "meissä", elative: "meistä", adessive: "meillä", ablative: "meiltä", allative: "meille", essive: "meinä", translative: "meiksi", abessive: "meittä" },
+        example: { fi: "Me täytämme hyllyt yhdessä.", ru: "Мы вместе заполняем полки." } },
+      { fi: "te", ru: "вы",
+        forms: [{ label: "родительный", value: "teidän" }, { label: "партитив", value: "teitä" }],
+        cases: { illative: "teihin", inessive: "teissä", elative: "teistä", adessive: "teillä", ablative: "teiltä", allative: "teille", essive: "teinä", translative: "teiksi", abessive: "teittä" },
+        example: { fi: "Onko teillä kysyttävää?", ru: "У вас есть вопросы?" } },
+      { fi: "he", ru: "они",
+        forms: [{ label: "родительный", value: "heidän" }, { label: "партитив", value: "heitä" }],
+        cases: { illative: "heihin", inessive: "heissä", elative: "heistä", adessive: "heillä", ablative: "heiltä", allative: "heille", essive: "heinä", translative: "heiksi", abessive: "heittä" },
+        example: { fi: "He tulevat huomenna töihin.", ru: "Они придут завтра на работу." } },
+    ],
+  },
+  {
+    id: "numbers", fi: "Numerot", ru: "Числа", icon: Hash, pos: "числ.",
+    words: [
+      { fi: "yksi", ru: "один", note: "после «yksi» существительное в именительном: yksi omena" },
+      { fi: "kaksi", ru: "два", note: "начиная с «kaksi» существительное в партитиве: kaksi omenaa" },
+      { fi: "kolme", ru: "три" },
+      { fi: "neljä", ru: "четыре" }, { fi: "viisi", ru: "пять" }, { fi: "kuusi", ru: "шесть" },
+      { fi: "seitsemän", ru: "семь" }, { fi: "kahdeksan", ru: "восемь" },
+      { fi: "yhdeksän", ru: "девять" }, { fi: "kymmenen", ru: "десять" },
+    ],
+  },
+  {
+    id: "family", fi: "Perhe", ru: "Семья", icon: Users,
+    words: [
+      { fi: "äiti", ru: "мама", forms: [{ label: "родительный", value: "äidin" }, { label: "партитив", value: "äitiä" }] },
+      { fi: "isä", ru: "папа", forms: [{ label: "родительный", value: "isän" }, { label: "партитив", value: "isää" }] },
+      { fi: "poika", ru: "сын", forms: [{ label: "родительный", value: "pojan" }, { label: "партитив", value: "poikaa" }] },
+      { fi: "tytär", ru: "дочь", forms: [{ label: "родительный", value: "tyttären" }, { label: "партитив", value: "tytärtä" }] },
+      { fi: "veli", ru: "брат", forms: [{ label: "родительный", value: "veljen" }, { label: "партитив", value: "veljeä" }] },
+      { fi: "sisko", ru: "сестра", forms: [{ label: "родительный", value: "siskon" }, { label: "партитив", value: "siskoa" }] },
+      { fi: "perhe", ru: "семья", forms: [{ label: "родительный", value: "perheen" }, { label: "партитив", value: "perhettä" }] },
+      { fi: "lapsi", ru: "ребёнок", forms: [{ label: "родительный", value: "lapsen" }, { label: "партитив", value: "lasta" }] },
+    ],
+  },
+  {
+    id: "days", fi: "Viikonpäivät", ru: "Дни недели", icon: CalendarDays,
+    words: [
+      { fi: "maanantai", ru: "понедельник", forms: [{ label: "родительный", value: "maanantain" }, { label: "партитив", value: "maanantaita" }] },
+      { fi: "tiistai", ru: "вторник", forms: [{ label: "родительный", value: "tiistain" }, { label: "партитив", value: "tiistaita" }] },
+      { fi: "keskiviikko", ru: "среда", forms: [{ label: "родительный", value: "keskiviikon" }, { label: "партитив", value: "keskiviikkoa" }] },
+      { fi: "torstai", ru: "четверг", forms: [{ label: "родительный", value: "torstain" }, { label: "партитив", value: "torstaita" }] },
+      { fi: "perjantai", ru: "пятница", forms: [{ label: "родительный", value: "perjantain" }, { label: "партитив", value: "perjantaita" }] },
+      { fi: "lauantai", ru: "суббота", forms: [{ label: "родительный", value: "lauantain" }, { label: "партитив", value: "lauantaita" }] },
+      { fi: "sunnuntai", ru: "воскресенье", forms: [{ label: "родительный", value: "sunnuntain" }, { label: "партитив", value: "sunnuntaita" }] },
+    ],
+  },
+  {
+    id: "phrases", fi: "Hyödylliset lauseet", ru: "Общие фразы", icon: MessageCircle,
+    words: [
+      { fi: "Puhutko englantia?", ru: "Ты говоришь по-английски?", note: "если не хватает финского" },
+      { fi: "En ymmärrä", ru: "Я не понимаю", note: "если не поняли, что сказали" },
+      { fi: "Voitko toistaa?", ru: "Можешь повторить?", note: "попросить повторить фразу" },
+      { fi: "Voitko auttaa minua?", ru: "Ты можешь мне помочь?", note: "просьба о помощи" },
+      { fi: "Mikä sinun nimesi on?", ru: "Как тебя зовут?", note: "при знакомстве" },
+      { fi: "Hyvää päivänjatkoa", ru: "Хорошего дня", note: "прощание в течение дня" },
+    ],
+  },
+];
+
+/* ---------------------------------------------------------
+   ДАННЫЕ: рабочая лексика магазина
+--------------------------------------------------------- */
+const TOPICS_WORK = [
+  {
+    id: "customer", fi: "Asiakaspalvelu", ru: "Общение с покупателями", icon: Store,
+    words: [
+      { fi: "Mistä löydän...?", ru: "Где мне найти...?", note: "вопрос от покупателя о местоположении товара" },
+      { fi: "Onko teillä...?", ru: "У вас есть...?", note: "покупатель уточняет наличие товара" },
+      { fi: "Missä on kassa?", ru: "Где касса?", note: "частый вопрос от растерянного покупателя" },
+      { fi: "Voinko auttaa?", ru: "Могу я помочь?", note: "ваша фраза, если видите ищущего покупателя" },
+      { fi: "Hetki, katson.", ru: "Минутку, посмотрю", note: "если нужно время, чтобы проверить" },
+      { fi: "Se on loppu.", ru: "Этого нет в наличии", note: "сообщить об отсутствии товара" },
+      { fi: "Se on käytävällä kolme.", ru: "Это в третьем ряду", note: "направить покупателя к товару" },
+      { fi: "Onko tämä tarjouksessa?", ru: "Это по акции?", note: "покупатель уточняет про скидку" },
+      { fi: "Paljonko tämä maksaa?", ru: "Сколько это стоит?", note: "вопрос о цене" },
+      { fi: "Otatko kuitin?", ru: "Вам нужен чек?", note: "стандартный вопрос на кассе" },
+      { fi: "Haluatko pussin?", ru: "Вам нужен пакет?", note: "стандартный вопрос на кассе" },
+      { fi: "Maksatko kortilla vai käteisellä?", ru: "Вы платите картой или наличными?", note: "уточнение способа оплаты" },
+      { fi: "Meillä ei ole tätä juuri nyt.", ru: "У нас сейчас этого нет", note: "вежливо сообщить об отсутствии" },
+      { fi: "Se tulee huomenna.", ru: "Это будет завтра", note: "сообщить о поставке" },
+      { fi: "Onko sinulla Lidl Plus -sovellus?", ru: "У вас есть приложение Lidl Plus?", note: "про приложение лояльности" },
+    ],
+  },
+  {
+    id: "slang", fi: "Puhekieli", ru: "Разговорный финский (как говорят покупатели)", icon: Mic2,
+    words: [
+      { fi: "limppu", ru: "хлеб, буханка", note: "формально: leipä", forms: [{ label: "родительный", value: "limpun" }, { label: "партитив", value: "limppua" }] },
+      { fi: "jätski", ru: "мороженое", note: "формально: jäätelö", forms: [{ label: "родительный", value: "jätskin" }, { label: "партитив", value: "jätskiä" }] },
+      { fi: "limsa", ru: "газировка", note: "формально: virvoitusjuoma", forms: [{ label: "родительный", value: "limsan" }, { label: "партитив", value: "limsaa" }] },
+      { fi: "kalja", ru: "пиво", note: "формально: olut", forms: [{ label: "родительный", value: "kaljan" }, { label: "партитив", value: "kaljaa" }] },
+      { fi: "karkki", ru: "конфета, сладость", note: "обычное разговорное слово, формально: makeinen", forms: [{ label: "родительный", value: "karkin" }, { label: "партитив", value: "karkkia" }] },
+      { fi: "sipsi", ru: "чипсы", note: "формально: perunalastu", forms: [{ label: "родительный", value: "sipsin" }, { label: "партитив", value: "sipsiä" }] },
+      { fi: "purkki", ru: "баночка (йогурт, варенье)", note: "разговорное обозначение любой стеклянной/пласт. баночки", forms: [{ label: "родительный", value: "purkin" }, { label: "партитив", value: "purkkia" }] },
+      { fi: "tölkki", ru: "банка, пакет (консерв. банка, картон молока)", note: "очень частое слово в кассовой речи", forms: [{ label: "родительный", value: "tölkin" }, { label: "партитив", value: "tölkkiä" }] },
+      { fi: "possu", ru: "свинина", note: "формально: sianliha", forms: [{ label: "родительный", value: "possun" }, { label: "партитив", value: "possua" }] },
+      { fi: "pillimehu", ru: "сок с трубочкой (детский)", forms: [{ label: "родительный", value: "pillimehun" }, { label: "партитив", value: "pillimehua" }] },
+      { fi: "purnukka", ru: "баночка, контейнер (напр. для маргарина)", forms: [{ label: "родительный", value: "purnukan" }, { label: "партитив", value: "purnukkaa" }] },
+    ],
+  },
+  {
+    id: "store", fi: "Osastot ja merkinnät", ru: "Отделы и указатели", icon: ShoppingBasket,
+    words: [
+      { fi: "kassa", ru: "касса", forms: [{ label: "родительный", value: "kassan" }, { label: "мн. число", value: "kassat" }, { label: "партитив", value: "kassaa" }] },
+      { fi: "hylly", ru: "полка", forms: [{ label: "родительный", value: "hyllyn" }, { label: "мн. число", value: "hyllyt" }, { label: "партитив", value: "hyllyä" }] },
+      { fi: "käytävä", ru: "ряд, проход", forms: [{ label: "родительный", value: "käytävän" }, { label: "мн. число", value: "käytävät" }, { label: "партитив", value: "käytävää" }] },
+      { fi: "tarjous", ru: "акция, спецпредложение", forms: [{ label: "родительный", value: "tarjouksen" }, { label: "мн. число", value: "tarjoukset" }, { label: "партитив", value: "tarjousta" }] },
+      { fi: "alennus", ru: "скидка", forms: [{ label: "родительный", value: "alennuksen" }, { label: "мн. число", value: "alennukset" }, { label: "партитив", value: "alennusta" }] },
+      { fi: "avoinna", ru: "открыто", pos: "нареч." },
+      { fi: "suljettu", ru: "закрыто", pos: "прил." },
+      { fi: "pakaste", ru: "заморозка, замороженные продукты", forms: [{ label: "родительный", value: "pakasteen" }, { label: "мн. число", value: "pakasteet" }, { label: "партитив", value: "pakastetta" }] },
+      { fi: "tuore", ru: "свежий", pos: "прил." },
+      { fi: "varasto", ru: "склад", forms: [{ label: "родительный", value: "varaston" }, { label: "мн. число", value: "varastot" }, { label: "партитив", value: "varastoa" }] },
+      { fi: "pussi", ru: "пакет", forms: [{ label: "родительный", value: "pussin" }, { label: "мн. число", value: "pussit" }, { label: "партитив", value: "pussia" }] },
+      { fi: "kuitti", ru: "чек", forms: [{ label: "родительный", value: "kuitin" }, { label: "мн. число", value: "kuitit" }, { label: "партитив", value: "kuittia" }] },
+      { fi: "vaaka", ru: "весы", forms: [{ label: "родительный", value: "vaa'an" }, { label: "мн. число", value: "vaa'at" }, { label: "партитив", value: "vaakaa" }] },
+      { fi: "itsepalvelukassa", ru: "касса самообслуживания" },
+    ],
+  },
+  {
+    id: "checkout", fi: "Kassatyö", ru: "Зона кассы", icon: CreditCard,
+    words: [
+      { fi: "avata kassa", ru: "открыть кассу" },
+      { fi: "sulkea kassa", ru: "закрыть кассу" },
+      { fi: "skannata", ru: "сканировать товар", pos: "гл.",
+        forms: [
+          { label: "minä (я)", value: "skannaan" }, { label: "sinä (ты)", value: "skannaat" }, { label: "hän (он/она)", value: "skannaa" },
+          { label: "me (мы)", value: "skannaamme" }, { label: "te (вы)", value: "skannaatte" }, { label: "he (они)", value: "skannaavat" },
+          { label: "прошедшее (hän)", value: "skannasi" },
+        ] },
+      { fi: "viivakoodi", ru: "штрихкод", forms: [{ label: "родительный", value: "viivakoodin" }, { label: "мн. число", value: "viivakoodit" }, { label: "партитив", value: "viivakoodia" }] },
+      { fi: "syöttää hinta käsin", ru: "ввести цену вручную" },
+      { fi: "kassalipas", ru: "денежный ящик" },
+      { fi: "vaihtoraha", ru: "сдача" },
+      { fi: "hyvitys", ru: "возврат денег, компенсация" },
+      { fi: "palautus", ru: "возврат товара" },
+      { fi: "virhe maksussa", ru: "ошибка при оплате" },
+      { fi: "pankkikorttiveloitus", ru: "списание с карты" },
+      { fi: "ikärajatuote", ru: "товар с возрастным ограничением" },
+      { fi: "henkilöllisyystodistus", ru: "удостоверение личности" },
+      { fi: "jono", ru: "очередь", forms: [{ label: "родительный", value: "jonon" }, { label: "мн. число", value: "jonot" }, { label: "партитив", value: "jonoa" }] },
+    ],
+  },
+  {
+    id: "warehouse", fi: "Varastotyö", ru: "Зона склада", icon: Boxes,
+    words: [
+      { fi: "vastaanotto", ru: "приёмка товара" },
+      { fi: "toimitus", ru: "поставка", forms: [{ label: "родительный", value: "toimituksen" }, { label: "мн. число", value: "toimitukset" }, { label: "партитив", value: "toimitusta" }] },
+      { fi: "tilaus", ru: "заказ", forms: [{ label: "родительный", value: "tilauksen" }, { label: "мн. число", value: "tilaukset" }, { label: "партитив", value: "tilausta" }] },
+      { fi: "lava", ru: "паллета", forms: [{ label: "родительный", value: "lavan" }, { label: "мн. число", value: "lavat" }, { label: "партитив", value: "lavaa" }] },
+      { fi: "pumppukärry", ru: "гидравлическая тележка" },
+      { fi: "hyllytys", ru: "выкладка на полки" },
+      { fi: "inventaario", ru: "инвентаризация" },
+      { fi: "purkaa lava", ru: "разгрузить паллету" },
+      { fi: "täyttää hyllyt", ru: "пополнить полки" },
+      { fi: "viimeinen käyttöpäivä", ru: "срок годности" },
+      { fi: "eräpäivä", ru: "дата партии" },
+      { fi: "puutteellinen toimitus", ru: "недопоставка" },
+    ],
+  },
+  {
+    id: "salesfloor", fi: "Myymälätyö", ru: "Зона магазина (торговый зал)", icon: ListChecks,
+    words: [
+      { fi: "hintalappu", ru: "ценник", forms: [{ label: "родительный", value: "hintalapun" }, { label: "мн. число", value: "hintalaput" }, { label: "партитив", value: "hintalappua" }] },
+      { fi: "hyllynreunanauha", ru: "ценникодержатель на полке" },
+      { fi: "siivous", ru: "уборка" },
+      { fi: "roskien vienti", ru: "вынос мусора" },
+      { fi: "tuotteiden järjestely", ru: "расстановка товара" },
+      { fi: "hälytys", ru: "сигнализация, тревога" },
+      { fi: "turvatarra", ru: "защитная бирка" },
+      { fi: "vartija", ru: "охранник" },
+      { fi: "sulkemisaika", ru: "время закрытия" },
+      { fi: "aukioloajat", ru: "часы работы" },
+    ],
+  },
+  {
+    id: "bakerywork", fi: "Leipomotyö", ru: "Зона выпечки (процесс)", icon: ChefHat,
+    words: [
+      { fi: "taikina", ru: "тесто", forms: [{ label: "родительный", value: "taikinan" }, { label: "партитив", value: "taikinaa" }] },
+      { fi: "uuni", ru: "печь, духовка", forms: [{ label: "родительный", value: "uunin" }, { label: "мн. число", value: "uunit" }, { label: "партитив", value: "uunia" }] },
+      { fi: "paistaa", ru: "печь, выпекать", pos: "гл.",
+        forms: [
+          { label: "minä (я)", value: "paistan" }, { label: "sinä (ты)", value: "paistat" }, { label: "hän (он/она)", value: "paistaa" },
+          { label: "me (мы)", value: "paistamme" }, { label: "te (вы)", value: "paistatte" }, { label: "he (они)", value: "paistavat" },
+          { label: "прошедшее (hän)", value: "paistoi" },
+        ] },
+      { fi: "jäähdyttää", ru: "охлаждать", pos: "гл.",
+        forms: [
+          { label: "minä (я)", value: "jäähdytän" }, { label: "sinä (ты)", value: "jäähdytät" }, { label: "hän (он/она)", value: "jäähdyttää" },
+          { label: "me (мы)", value: "jäähdytämme" }, { label: "te (вы)", value: "jäähdytätte" }, { label: "he (они)", value: "jäähdyttävät" },
+          { label: "прошедшее (hän)", value: "jäähdytti" },
+        ] },
+      { fi: "täyttää hylly", ru: "заполнить полку выпечкой" },
+      { fi: "tuore erä", ru: "свежая партия" },
+      { fi: "myyntiaika", ru: "срок продажи" },
+      { fi: "pakkaus", ru: "упаковка", forms: [{ label: "родительный", value: "pakkauksen" }, { label: "мн. число", value: "pakkaukset" }, { label: "партитив", value: "pakkausta" }] },
+      { fi: "esivalmistettu", ru: "предварительно приготовленный", pos: "прил." },
+    ],
+  },
+  {
+    id: "bakery", fi: "Leipomo", ru: "Выпечка (продукция)", icon: Croissant,
+    words: [
+      { fi: "leipä", ru: "хлеб", forms: [{ label: "родительный", value: "leivän" }, { label: "мн. число", value: "leivät" }, { label: "партитив", value: "leipää" }] },
+      { fi: "ruisleipä", ru: "ржаной хлеб" },
+      { fi: "vaalea leipä", ru: "белый хлеб" },
+      { fi: "näkkileipä", ru: "хрустящий хлебец", forms: [{ label: "родительный", value: "näkkileivän" }, { label: "партитив", value: "näkkileipää" }] },
+      { fi: "sämpylä", ru: "булочка", forms: [{ label: "родительный", value: "sämpylän" }, { label: "мн. число", value: "sämpylät" }, { label: "партитив", value: "sämpylää" }] },
+      { fi: "patonki", ru: "багет", forms: [{ label: "родительный", value: "patongin" }, { label: "мн. число", value: "patongit" }, { label: "партитив", value: "patonkia" }] },
+      { fi: "pulla", ru: "сдобная булочка", forms: [{ label: "родительный", value: "pullan" }, { label: "мн. число", value: "pullat" }, { label: "партитив", value: "pullaa" }] },
+      { fi: "korvapuusti", ru: "булочка с корицей" },
+      { fi: "munkki", ru: "пончик", forms: [{ label: "родительный", value: "munkin" }, { label: "мн. число", value: "munkit" }, { label: "партитив", value: "munkkia" }] },
+      { fi: "berliininmunkki", ru: "берлинер (пончик с начинкой)", forms: [{ label: "родительный", value: "berliininmunkin" }, { label: "партитив", value: "berliininmunkkia" }] },
+      { fi: "kakku", ru: "торт", forms: [{ label: "родительный", value: "kakun" }, { label: "мн. число", value: "kakut" }, { label: "партитив", value: "kakkua" }] },
+      { fi: "täytekakku", ru: "торт с начинкой/кремом", forms: [{ label: "родительный", value: "täytekakun" }, { label: "партитив", value: "täytekakkua" }] },
+      { fi: "keksi", ru: "печенье", forms: [{ label: "родительный", value: "keksin" }, { label: "мн. число", value: "keksit" }, { label: "партитив", value: "keksiä" }] },
+      { fi: "pikkuleipä", ru: "печенье (мелкое, песочное)", forms: [{ label: "родительный", value: "pikkuleivän" }, { label: "партитив", value: "pikkuleipää" }] },
+      { fi: "muffinssi", ru: "маффин", forms: [{ label: "родительный", value: "muffinssin" }, { label: "партитив", value: "muffinssia" }] },
+      { fi: "voisarvi", ru: "круассан", forms: [{ label: "родительный", value: "voisarven" }, { label: "партитив", value: "voisarvea" }] },
+      { fi: "viineri", ru: "сдоба (венская выпечка)" },
+      { fi: "gluteeniton", ru: "безглютеновый", pos: "прил." },
+    ],
+  },
+  {
+    id: "vegetables", fi: "Vihannekset", ru: "Овощи", icon: Carrot,
+    words: [
+      { fi: "peruna", ru: "картофель", forms: [{ label: "родительный", value: "perunan" }, { label: "мн. число", value: "perunat" }, { label: "партитив", value: "perunaa" }] },
+      { fi: "tomaatti", ru: "помидор", forms: [{ label: "родительный", value: "tomaatin" }, { label: "мн. число", value: "tomaatit" }, { label: "партитив", value: "tomaattia" }] },
+      { fi: "kurkku", ru: "огурец", forms: [{ label: "родительный", value: "kurkun" }, { label: "мн. число", value: "kurkut" }, { label: "партитив", value: "kurkkua" }] },
+      { fi: "porkkana", ru: "морковь", forms: [{ label: "родительный", value: "porkkanan" }, { label: "мн. число", value: "porkkanat" }, { label: "партитив", value: "porkkanaa" }] },
+      { fi: "sipuli", ru: "лук", forms: [{ label: "родительный", value: "sipulin" }, { label: "мн. число", value: "sipulit" }, { label: "партитив", value: "sipulia" }] },
+      { fi: "punasipuli", ru: "красный лук", forms: [{ label: "родительный", value: "punasipulin" }, { label: "партитив", value: "punasipulia" }] },
+      { fi: "valkosipuli", ru: "чеснок" },
+      { fi: "paprika", ru: "перец (сладкий)", forms: [{ label: "родительный", value: "paprikan" }, { label: "мн. число", value: "paprikat" }, { label: "партитив", value: "paprikaa" }] },
+      { fi: "kaali", ru: "капуста", forms: [{ label: "родительный", value: "kaalin" }, { label: "мн. число", value: "kaalit" }, { label: "партитив", value: "kaalia" }] },
+      { fi: "kukkakaali", ru: "цветная капуста", forms: [{ label: "родительный", value: "kukkakaalin" }, { label: "партитив", value: "kukkakaalia" }] },
+      { fi: "parsakaali", ru: "брокколи", forms: [{ label: "родительный", value: "parsakaalin" }, { label: "партитив", value: "parsakaalia" }] },
+      { fi: "salaatti", ru: "листовой салат", forms: [{ label: "родительный", value: "salaatin" }, { label: "мн. число", value: "salaatit" }, { label: "партитив", value: "salaattia" }] },
+      { fi: "herne", ru: "горох", forms: [{ label: "родительный", value: "herneen" }, { label: "мн. число", value: "herneet" }, { label: "партитив", value: "hernettä" }] },
+      { fi: "maissi", ru: "кукуруза", forms: [{ label: "родительный", value: "maissin" }, { label: "партитив", value: "maissia" }] },
+      { fi: "purjo", ru: "лук-порей", forms: [{ label: "родительный", value: "purjon" }, { label: "партитив", value: "purjoa" }] },
+      { fi: "kesäkurpitsa", ru: "кабачок", forms: [{ label: "родительный", value: "kesäkurpitsan" }, { label: "партитив", value: "kesäkurpitsaa" }] },
+      { fi: "avokado", ru: "авокадо", forms: [{ label: "родительный", value: "avokadon" }, { label: "партитив", value: "avokadoa" }] },
+      { fi: "pinaatti", ru: "шпинат" },
+      { fi: "retiisi", ru: "редис" },
+      { fi: "punajuuri", ru: "свёкла" },
+    ],
+  },
+  {
+    id: "fruits", fi: "Hedelmät ja marjat", ru: "Фрукты и ягоды", icon: Apple,
+    words: [
+      { fi: "omena", ru: "яблоко", forms: [{ label: "родительный", value: "omenan" }, { label: "мн. число", value: "omenat" }, { label: "партитив", value: "omenaa" }] },
+      { fi: "banaani", ru: "банан", forms: [{ label: "родительный", value: "banaanin" }, { label: "мн. число", value: "banaanit" }, { label: "партитив", value: "banaania" }] },
+      { fi: "appelsiini", ru: "апельсин", forms: [{ label: "родительный", value: "appelsiinin" }, { label: "мн. число", value: "appelsiinit" }, { label: "партитив", value: "appelsiinia" }] },
+      { fi: "päärynä", ru: "груша", forms: [{ label: "родительный", value: "päärynän" }, { label: "мн. число", value: "päärynät" }, { label: "партитив", value: "päärynää" }] },
+      { fi: "viinirypäle", ru: "виноград (ягода)", forms: [{ label: "родительный", value: "viinirypäleen" }, { label: "мн. число", value: "viinirypäleet" }, { label: "партитив", value: "viinirypälettä" }] },
+      { fi: "mansikka", ru: "клубника", forms: [{ label: "родительный", value: "mansikan" }, { label: "мн. число", value: "mansikat" }, { label: "партитив", value: "mansikkaa" }] },
+      { fi: "mustikka", ru: "черника", forms: [{ label: "родительный", value: "mustikan" }, { label: "мн. число", value: "mustikat" }, { label: "партитив", value: "mustikkaa" }] },
+      { fi: "vadelma", ru: "малина", forms: [{ label: "родительный", value: "vadelman" }, { label: "мн. число", value: "vadelmat" }, { label: "партитив", value: "vadelmaa" }] },
+      { fi: "sitruuna", ru: "лимон", forms: [{ label: "родительный", value: "sitruunan" }, { label: "мн. число", value: "sitruunat" }, { label: "партитив", value: "sitruunaa" }] },
+      { fi: "greippi", ru: "грейпфрут" },
+      { fi: "meloni", ru: "дыня" },
+      { fi: "vesimeloni", ru: "арбуз" },
+      { fi: "kiivi", ru: "киви", forms: [{ label: "родительный", value: "kiivin" }, { label: "партитив", value: "kiiviä" }] },
+      { fi: "persikka", ru: "персик", forms: [{ label: "родительный", value: "persikan" }, { label: "партитив", value: "persikkaa" }] },
+      { fi: "aprikoosi", ru: "абрикос", forms: [{ label: "родительный", value: "aprikoosin" }, { label: "партитив", value: "aprikoosia" }] },
+      { fi: "ananas", ru: "ананас", forms: [{ label: "родительный", value: "ananaksen" }, { label: "партитив", value: "ananasta" }] },
+      { fi: "luumu", ru: "слива", forms: [{ label: "родительный", value: "luumun" }, { label: "партитив", value: "luumua" }] },
+      { fi: "granaattiomena", ru: "гранат", forms: [{ label: "родительный", value: "granaattiomenan" }, { label: "партитив", value: "granaattiomenaa" }] },
+    ],
+  },
+  {
+    id: "dairy", fi: "Maitotuotteet", ru: "Молочные продукты", icon: Milk,
+    words: [
+      { fi: "maito", ru: "молоко", forms: [{ label: "родительный", value: "maidon" }, { label: "партитив", value: "maitoa" }] },
+      { fi: "kevytmaito", ru: "молоко пониженной жирности" },
+      { fi: "juusto", ru: "сыр", forms: [{ label: "родительный", value: "juuston" }, { label: "мн. число", value: "juustot" }, { label: "партитив", value: "juustoa" }] },
+      { fi: "jogurtti", ru: "йогурт", forms: [{ label: "родительный", value: "jogurtin" }, { label: "мн. число", value: "jogurtit" }, { label: "партитив", value: "jogurttia" }] },
+      { fi: "voi", ru: "сливочное масло", forms: [{ label: "родительный", value: "voin" }, { label: "партитив", value: "voita" }] },
+      { fi: "kerma", ru: "сливки", forms: [{ label: "родительный", value: "kerman" }, { label: "партитив", value: "kermaa" }] },
+      { fi: "kananmuna", ru: "куриное яйцо", forms: [{ label: "родительный", value: "kananmunan" }, { label: "мн. число", value: "kananmunat" }, { label: "партитив", value: "kananmunaa" }] },
+      { fi: "rahka", ru: "рахка (творожок)", forms: [{ label: "родительный", value: "rahkan" }, { label: "партитив", value: "rahkaa" }] },
+      { fi: "viili", ru: "вийли (кисломолочный продукт)" },
+      { fi: "smetana", ru: "сметана" },
+    ],
+  },
+  {
+    id: "meat", fi: "Liha ja kala", ru: "Мясо и рыба", icon: Beef,
+    words: [
+      { fi: "liha", ru: "мясо", forms: [{ label: "родительный", value: "lihan" }, { label: "партитив", value: "lihaa" }] },
+      { fi: "jauheliha", ru: "фарш" },
+      { fi: "kana", ru: "курица", forms: [{ label: "родительный", value: "kanan" }, { label: "мн. число", value: "kanat" }, { label: "партитив", value: "kanaa" }] },
+      { fi: "kinkku", ru: "ветчина", forms: [{ label: "родительный", value: "kinkun" }, { label: "мн. число", value: "kinkut" }, { label: "партитив", value: "kinkkua" }] },
+      { fi: "makkara", ru: "колбаса, сосиска", forms: [{ label: "родительный", value: "makkaran" }, { label: "мн. число", value: "makkarat" }, { label: "партитив", value: "makkaraa" }] },
+      { fi: "kala", ru: "рыба", forms: [{ label: "родительный", value: "kalan" }, { label: "мн. число", value: "kalat" }, { label: "партитив", value: "kalaa" }] },
+      { fi: "lohi", ru: "лосось" },
+      { fi: "katkarapu", ru: "креветка", forms: [{ label: "родительный", value: "katkaravun" }, { label: "мн. число", value: "katkaravut" }, { label: "партитив", value: "katkarapua" }] },
+      { fi: "pekoni", ru: "бекон" },
+    ],
+  },
+  {
+    id: "household", fi: "Kodin tarvikkeet", ru: "Бытовая химия и хозтовары", icon: SprayCan,
+    words: [
+      { fi: "pesuaine", ru: "моющее средство", forms: [{ label: "родительный", value: "pesuaineen" }, { label: "мн. число", value: "pesuaineet" }, { label: "партитив", value: "pesuainetta" }] },
+      { fi: "wc-paperi", ru: "туалетная бумага" },
+      { fi: "talouspaperi", ru: "бумажные полотенца" },
+      { fi: "astianpesuaine", ru: "средство для мытья посуды" },
+      { fi: "pesujauhe", ru: "стиральный порошок" },
+      { fi: "siivousaine", ru: "чистящее средство" },
+      { fi: "roskapussi", ru: "мусорный пакет", forms: [{ label: "родительный", value: "roskapussin" }, { label: "мн. число", value: "roskapussit" }, { label: "партитив", value: "roskapussia" }] },
+      { fi: "hammastahna", ru: "зубная паста" },
+      { fi: "saippua", ru: "мыло", forms: [{ label: "родительный", value: "saippuan" }, { label: "мн. число", value: "saippuat" }, { label: "партитив", value: "saippuaa" }] },
+    ],
+  },
+  {
+    id: "electronics", fi: "Elektroniikka", ru: "Электроника и техника", icon: Plug,
+    words: [
+      { fi: "paristo", ru: "батарейка", forms: [{ label: "родительный", value: "pariston" }, { label: "мн. число", value: "paristot" }, { label: "партитив", value: "paristoa" }] },
+      { fi: "laturi", ru: "зарядное устройство", forms: [{ label: "родительный", value: "laturin" }, { label: "мн. число", value: "laturit" }, { label: "партитив", value: "laturia" }] },
+      { fi: "kaapeli", ru: "кабель", forms: [{ label: "родительный", value: "kaapelin" }, { label: "мн. число", value: "kaapelit" }, { label: "партитив", value: "kaapelia" }] },
+      { fi: "kuulokkeet", ru: "наушники" },
+      { fi: "taskulamppu", ru: "фонарик" },
+      { fi: "jatkojohto", ru: "удлинитель" },
+      { fi: "pistorasia", ru: "розетка" },
+      { fi: "verkkolaite", ru: "адаптер, блок питания" },
+      { fi: "muistitikku", ru: "флешка" },
+    ],
+  },
+];
+
+/* ---------------------------------------------------------
+   ДВИЖОК СКЛОНЕНИЯ ПО ПАДЕЖАМ
+--------------------------------------------------------- */
+const CASE_LABELS = [
+  ["nominative", "именительный"], ["genitive", "родительный"], ["partitive", "партитив"],
+  ["illative", "иллатив (во что)"], ["inessive", "инессив (в чём)"], ["elative", "элатив (из чего)"],
+  ["allative", "аллатив (на что/кому)"], ["adessive", "адессив (на чём/у кого)"], ["ablative", "аблатив (от чего/с чего)"],
+  ["essive", "эссив (в качестве)"], ["translative", "транслатив (во что превр.)"], ["abessive", "абессив (без чего)"],
+];
+const IRREGULAR_CASES = {
+  "veli": { illative: "veljeen", essive: "veljenä" },
+  "lapsi": { illative: "lapseen", essive: "lapsena" },
+};
+
+function declineNoun(nom, gen, part) {
+  if (!gen || !gen.endsWith("n") || !part) return null;
+  if (IRREGULAR_CASES[nom]) {
+    const genStem = gen.slice(0, -1);
+    const front = /[äöy]/.test(nom);
+    return {
+      nominative: nom, genitive: gen, partitive: part,
+      illative: IRREGULAR_CASES[nom].illative,
+      inessive: genStem + (front ? "ssä" : "ssa"), elative: genStem + (front ? "stä" : "sta"),
+      adessive: genStem + (front ? "llä" : "lla"), ablative: genStem + (front ? "ltä" : "lta"),
+      allative: genStem + "lle", essive: IRREGULAR_CASES[nom].essive,
+      translative: genStem + "ksi", abessive: genStem + (front ? "ttä" : "tta"),
+    };
+  }
+  const genStem = gen.slice(0, -1);
+  const front = /[äöy]/.test(nom);
+  const lastChar = nom.slice(-1);
+  const secondLast = nom.slice(-2, -1);
+  const endsInVowel = /[aeiouyäö]/i.test(lastChar);
+  const isDiphthongI = lastChar === "i" && /[aeoäö]/i.test(secondLast);
+  const isSingleE = lastChar === "e" && secondLast !== "e";
+
+  let illative;
+  if (!endsInVowel) illative = genStem + genStem.slice(-1) + "n";
+  else if (isSingleE) illative = nom + "eseen";
+  else if (isDiphthongI) illative = nom + "hin";
+  else illative = nom + lastChar + "n";
+
+  const essBase = endsInVowel ? nom : genStem;
+  const essive = essBase + (front ? "nä" : "na");
+
+  return {
+    nominative: nom, genitive: gen, partitive: part, illative,
+    inessive: genStem + (front ? "ssä" : "ssa"), elative: genStem + (front ? "stä" : "sta"),
+    adessive: genStem + (front ? "llä" : "lla"), ablative: genStem + (front ? "ltä" : "lta"),
+    allative: genStem + "lle", essive,
+    translative: genStem + "ksi", abessive: genStem + (front ? "ttä" : "tta"),
+  };
+}
+
+/* ---------------------------------------------------------
+   ХЕЛПЕРЫ: обогащение слова
+--------------------------------------------------------- */
+const VERB_WORDS = new Set(["skannata", "paistaa", "jäähdyttää"]);
+const ADJ_WORDS = new Set(["tuore", "gluteeniton", "esivalmistettu", "suljettu"]);
+const PRONOUN_WORDS = new Set(["minä", "sinä", "hän", "me", "te", "he"]);
+const SLANG_WORDS = new Set(["limppu", "jätski", "limsa", "kalja", "karkki", "sipsi", "purkki", "tölkki", "possu", "pillimehu", "purnukka"]);
+const PRODUCT_TOPICS = new Set(["bakery", "vegetables", "fruits", "dairy", "meat", "household", "electronics", "slang"]);
+const LOCATION_TOPICS = new Set(["store", "checkout", "warehouse", "salesfloor", "bakerywork"]);
+const TOPIC_CONTEXT_NOTE = {
+  checkout: "На кассе, при расчёте с покупателем",
+  warehouse: "На складе, при приёмке или учёте товара",
+  salesfloor: "В торговом зале, повседневная задача",
+  bakerywork: "В зоне выпечки, рабочий процесс",
+};
+
+function shortRu(ru) { return ru.split(",")[0].split("(")[0].trim(); }
+
+function enrichWord(word, topicId) {
+  const hasSpace = word.fi.includes(" ");
+  let pos = word.pos;
+  if (!pos) {
+    if (SLANG_WORDS.has(word.fi)) pos = "разг.";
+    else if (PRONOUN_WORDS.has(word.fi)) pos = "местоим.";
+    else if (VERB_WORDS.has(word.fi)) pos = "гл.";
+    else if (ADJ_WORDS.has(word.fi)) pos = "прил.";
+    else if (hasSpace) pos = "фраза";
+    else pos = "сущ.";
+  }
+  let example = word.example;
+  if (!example) {
+    const partitive = word.forms && word.forms.find((f) => f.label === "партитив");
+    if (PRODUCT_TOPICS.has(topicId) && partitive) {
+      example = { fi: `Onko teillä ${partitive.value}?`, ru: `У вас есть ${shortRu(word.ru)}?` };
+    } else if (LOCATION_TOPICS.has(topicId) && pos === "сущ." && !hasSpace) {
+      example = { fi: `Missä on ${word.fi}?`, ru: `Где находится ${shortRu(word.ru)}?` };
+    }
+  }
+  let note = word.note;
+  if (!note && hasSpace && TOPIC_CONTEXT_NOTE[topicId]) note = TOPIC_CONTEXT_NOTE[topicId];
+
+  let cases = word.cases;
+  if (!cases && !hasSpace && word.forms) {
+    const gen = word.forms.find((f) => f.label === "родительный");
+    const part = word.forms.find((f) => f.label === "партитив");
+    if (gen && part) cases = declineNoun(word.fi, gen.value, part.value);
+  }
+  return { ...word, pos, example, note, cases };
+}
+
+function wordsWithIds(topic) {
+  return topic.words.map((w, i) => enrichWord({ ...w, id: `${topic.id}-${i}` }, topic.id));
+}
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function normalize(s) { return s.trim().toLowerCase(); }
+function normalizeLoose(s) { return normalize(s).replace(/ä/g, "a").replace(/ö/g, "o"); }
+
+function topicGroup(topicId) {
+  if (topicId === "custom") return "custom";
+  if (topicId === "mixed") return "work";
+  if (TOPICS_WORK.some((t) => t.id === topicId)) return "work";
+  return "general";
+}
+
+function todayStr() { return new Date().toISOString().slice(0, 10); }
+function yesterdayStr() { const d = new Date(); d.setDate(d.getDate() - 1); return d.toISOString().slice(0, 10); }
+
+function speakFi(text) {
+  try {
+    if (!("speechSynthesis" in window)) return;
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "fi-FI";
+    utter.rate = 0.88;
+    window.speechSynthesis.speak(utter);
+  } catch (e) {}
+}
+
+const DEFAULT_GOAL = 30;
+const GOAL_OPTIONS = [10, 20, 30, 50];
+const ALL_WORK_WORDS = TOPICS_WORK.flatMap((t) => wordsWithIds(t));
+const RIGHT_SPEAKERS = new Set(["ты", "sinä", "työntekijä"]);
+
+/* ---------------------------------------------------------
+   ДАННЫЕ: Задания — диалоги с пропусками (по одному логичному ответу)
+--------------------------------------------------------- */
+const EXERCISES = [
+  {
+    id: "ex-bakery", title: "Покупатель ищет хлеб", icon: Croissant,
+    situation: "В зале: покупатель не может найти ржаной хлеб.",
+    lines: [
+      { speaker: "Покупатель", side: "left", template: "Anteeksi, ___ ruisleipää?", correct: "Onko teillä",
+        options: ["Onko teillä", "Paljonko maksaa", "Näkemiin", "Kiitos"], ru: "Извините, у вас есть ржаной хлеб?" },
+      { speaker: "Ты", side: "right", template: "___, katson.", correct: "Hetki",
+        options: ["Hetki", "Kiitos", "Näkemiin", "Ole hyvä"], ru: "Минутку, посмотрю." },
+      { speaker: "Ты", side: "right", template: "Se on ___ kolme.", correct: "käytävällä",
+        options: ["käytävällä", "varastossa", "ulkona", "pakastimessa"], ru: "Он в третьем ряду." },
+      { speaker: "Покупатель", side: "left", template: "___ paljon!", correct: "Kiitos",
+        options: ["Kiitos", "Anteeksi", "Näkemiin", "Ole hyvä"], ru: "Спасибо большое!" },
+    ],
+  },
+  {
+    id: "ex-checkout", title: "Оплата и скидка на кассе", icon: CreditCard,
+    situation: "На кассе: покупатель интересуется акцией и оплатой.",
+    lines: [
+      { speaker: "Покупатель", side: "left", template: "___ tämä tarjouksessa?", correct: "Onko",
+        options: ["Onko", "Paljonko", "Missä", "Kiitos"], ru: "Это по акции?" },
+      { speaker: "Ты", side: "right", template: "Kyllä, ___ on kaksikymmentä prosenttia.", correct: "alennus",
+        options: ["alennus", "pussi", "hinta", "kuitti"], ru: "Да, скидка двадцать процентов." },
+      { speaker: "Ты", side: "right", template: "___ kortilla vai käteisellä?", correct: "Maksatko",
+        options: ["Maksatko", "Haluatko", "Otatko", "Onko"], ru: "Вы платите картой или наличными?" },
+      { speaker: "Ты", side: "right", template: "___ kuitin?", correct: "Otatko",
+        options: ["Otatko", "Onko", "Maksatko", "Näetkö"], ru: "Вам нужен чек?" },
+    ],
+  },
+  {
+    id: "ex-outofstock", title: "Товара нет в наличии", icon: Store,
+    situation: "Покупатель спрашивает молоко, которого сейчас нет.",
+    lines: [
+      { speaker: "Покупатель", side: "left", template: "___ maitoa?", correct: "Onko teillä",
+        options: ["Onko teillä", "Paljonko maksaa", "Missä on", "Kiitos"], ru: "У вас есть молоко?" },
+      { speaker: "Ты", side: "right", template: "Valitettavasti ___.", correct: "se on loppu",
+        options: ["se on loppu", "se on tarjouksessa", "se on hyllyssä", "se on kassalla"], ru: "К сожалению, этого нет в наличии." },
+      { speaker: "Ты", side: "right", template: "Mutta ___.", correct: "se tulee huomenna",
+        options: ["se tulee huomenna", "se on loppu", "se on käytävällä", "se maksaa paljon"], ru: "Но это будет завтра." },
+      { speaker: "Покупатель", side: "left", template: "___, kiitos tiedosta.", correct: "Selvä",
+        options: ["Selvä", "Kiitos", "Anteeksi", "Ole hyvä"], ru: "Понятно, спасибо за информацию." },
+    ],
+  },
+  {
+    id: "ex-handover", title: "Передача смены коллеге", icon: Users,
+    situation: "Конец смены: нужно рассказать коллеге, что сделать.",
+    lines: [
+      { speaker: "Ты", side: "right", template: "Hei, ___ on melkein loppu hyllyssä.", correct: "maito",
+        options: ["maito", "kassa", "hälytys", "vaaka"], ru: "Привет, молоко почти закончилось на полке." },
+      { speaker: "Коллега", side: "left", template: "Selvä, täytän ___ pian.", correct: "hyllyt",
+        options: ["hyllyt", "viivakoodin", "laturin", "kuitin"], ru: "Хорошо, скоро заполню полки." },
+      { speaker: "Ты", side: "right", template: "Muista tarkistaa myös ___.", correct: "eräpäivä",
+        options: ["eräpäivä", "hintalappu", "viivakoodi", "kuitti"], ru: "Не забудь также проверить срок годности партии." },
+      { speaker: "Коллега", side: "left", template: "___ ongelmaa, hoidan sen.", correct: "Ei",
+        options: ["Ei", "On", "Kyllä", "Ole"], ru: "Без проблем, я разберусь." },
+    ],
+  },
+  {
+    id: "ex-warehouse", title: "Приёмка товара на складе", icon: Boxes,
+    situation: "Приехала поставка — вы разгружаете её с коллегой.",
+    lines: [
+      { speaker: "Коллега", side: "left", template: "___ on saapunut, aloitetaan purku.", correct: "Toimitus",
+        options: ["Toimitus", "Hälytys", "Kuitti", "Hintalappu"], ru: "Поставка приехала, начинаем разгрузку." },
+      { speaker: "Ты", side: "right", template: "Selvä, haetaan ___.", correct: "pumppukärry",
+        options: ["pumppukärry", "hintalappu", "kuitti", "vaaka"], ru: "Хорошо, возьмём гидравлическую тележку." },
+      { speaker: "Коллега", side: "left", template: "Tarkista ___ ennen hyllytystä.", correct: "eräpäivä",
+        options: ["eräpäivä", "hintalappu", "viivakoodi", "alennus"], ru: "Проверь срок годности перед выкладкой." },
+      { speaker: "Ты", side: "right", template: "Tämä ___ on puutteellinen, ilmoitetaan siitä.", correct: "toimitus",
+        options: ["toimitus", "hälytys", "kuitti", "vaaka"], ru: "Эта поставка неполная, сообщим об этом." },
+    ],
+  },
+  {
+    id: "ex-closing", title: "Закрытие смены и уборка", icon: ListChecks,
+    situation: "Магазин скоро закрывается — нужно навести порядок.",
+    lines: [
+      { speaker: "Коллега", side: "left", template: "On melkein ___.", correct: "sulkemisaika",
+        options: ["sulkemisaika", "aukioloajat", "tarjous", "alennus"], ru: "Уже почти время закрытия." },
+      { speaker: "Ты", side: "right", template: "Selvä, aloitetaan ___.", correct: "siivous",
+        options: ["siivous", "hyllytys", "inventaario", "vastaanotto"], ru: "Хорошо, начинаем уборку." },
+      { speaker: "Коллега", side: "left", template: "Muista myös ___.", correct: "roskien vienti",
+        options: ["roskien vienti", "tuotteiden järjestely", "hyllynreunanauha", "turvatarra"], ru: "Не забудь также вынести мусор." },
+      { speaker: "Ты", side: "right", template: "Selvä, ___ huomenna!", correct: "näkemiin",
+        options: ["näkemiin", "anteeksi", "kiitos", "selvä"], ru: "Хорошо, до завтра!" },
+    ],
+  },
+];
+
+/* ---------------------------------------------------------
+   ЦВЕТА — насыщенная, но чистая палитра
+--------------------------------------------------------- */
+const C = {
+  paper: "#FBF8F0", paperDeep: "#F1E9D4", ink: "#182018",
+  spruce: "#2E7D53", spruceDeep: "#1B5138", spruceTint: "#DDEFE3",
+  lake: "#2569A6", lakeDeep: "#194C80", lakeTint: "#DCEAF5",
+  amber: "#CE8A2E", amberDeep: "#A66E20", amberTint: "#F5E7CE",
+  berry: "#B0424B", mist: "#71806F", line: "#DDD2AF",
+};
+function groupColor(group) {
+  if (group === "work") return { main: C.lake, deep: C.lakeDeep, tint: C.lakeTint };
+  if (group === "custom") return { main: C.amber, deep: C.amberDeep, tint: C.amberTint };
+  return { main: C.spruce, deep: C.spruceDeep, tint: C.spruceTint };
+}
+
+/* ---------------------------------------------------------
+   ХРАНИЛИЩЕ
+--------------------------------------------------------- */
+function loadJSON(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch (e) { return fallback; }
+}
+function saveJSON(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {}
+}
+
+const EMPTY_STATS = { xp: 0, streak: 0, lastPracticeDate: null, dailyXp: 0, dailyDate: null, goal: DEFAULT_GOAL };
+
+/* ===========================================================
+   ГЛАВНОЕ ПРИЛОЖЕНИЕ
+=========================================================== */
+function SuomenPolku() {
+  const [ready, setReady] = useState(false);
+  const [progress, setProgress] = useState({});
+  const [customWords, setCustomWords] = useState([]);
+  const [statsData, setStatsData] = useState(EMPTY_STATS);
+  const [doneExercises, setDoneExercises] = useState([]);
+  const [customExercises, setCustomExercises] = useState([]);
+  const [mixedWords, setMixedWords] = useState([]);
+  const [detailWord, setDetailWord] = useState(null);
+
+  const [view, setView] = useState("home");
+  const [activeGroup, setActiveGroup] = useState("work");
+  const [activeTopicId, setActiveTopicId] = useState(null);
+  const [activeExerciseId, setActiveExerciseId] = useState(null);
+
+  const [sessionWords, setSessionWords] = useState([]);
+  const [sessionMode, setSessionMode] = useState(null);
+  const [sessionKey, setSessionKey] = useState(0);
+  const [summaryStats, setSummaryStats] = useState(null);
+  const lastSource = useRef("topic");
+
+  const [resetArmed, setResetArmed] = useState(false);
+  const firstLoad = useRef(true);
+  const touchStart = useRef(null);
+
+  useEffect(() => {
+    (async () => {
+      const [p, cw, st, de, ce] = await Promise.all([
+        loadJSON("suomen-polku-progress", {}),
+        loadJSON("suomen-polku-custom", []),
+        loadJSON("suomen-polku-stats", EMPTY_STATS),
+        loadJSON("suomen-polku-exercises-done", []),
+        loadJSON("suomen-polku-custom-exercises", []),
+      ]);
+      setProgress(p); setCustomWords(cw);
+      setStatsData({ ...EMPTY_STATS, ...st });
+      setDoneExercises(de); setCustomExercises(ce); setReady(true);
+    })();
+  }, []);
+
+  useEffect(() => { if (firstLoad.current) { firstLoad.current = false; return; } saveJSON("suomen-polku-progress", progress); }, [progress]);
+  useEffect(() => { if (!ready) return; saveJSON("suomen-polku-custom", customWords); }, [customWords, ready]);
+  useEffect(() => { if (!ready) return; saveJSON("suomen-polku-stats", statsData); }, [statsData, ready]);
+  useEffect(() => { if (!ready) return; saveJSON("suomen-polku-exercises-done", doneExercises); }, [doneExercises, ready]);
+  useEffect(() => { if (!ready) return; saveJSON("suomen-polku-custom-exercises", customExercises); }, [customExercises, ready]);
+
+  const customTopic = useMemo(
+    () => ({ id: "custom", fi: "Omat sanat", ru: "Мои слова", icon: Sparkles, words: customWords }),
+    [customWords]
+  );
+  const mixedTopic = useMemo(
+    () => ({ id: "mixed", fi: "Sekaharjoitus", ru: "Смешанная тренировка", icon: Shuffle, words: mixedWords }),
+    [mixedWords]
+  );
+  const allExercises = useMemo(() => [...EXERCISES, ...customExercises], [customExercises]);
+
+  function findTopic(id) {
+    if (id === "custom") return customTopic;
+    if (id === "mixed") return mixedTopic;
+    return [...TOPICS_WORK, ...TOPICS_GENERAL].find((t) => t.id === id);
+  }
+  const activeTopic = activeTopicId ? findTopic(activeTopicId) : null;
+  const activeExercise = activeExerciseId ? allExercises.find((e) => e.id === activeExerciseId) : null;
+
+  function wordsOf(topic) { return (topic.id === "custom" || topic.id === "mixed") ? topic.words : wordsWithIds(topic); }
+
+  function poolForTopic(topicId) {
+    const group = topicGroup(topicId);
+    if (group === "work") return ALL_WORK_WORDS;
+    if (group === "general") return TOPICS_GENERAL.flatMap((t) => wordsWithIds(t));
+    return customWords.length >= 4 ? customWords : [...customWords, ...ALL_WORK_WORDS];
+  }
+
+  function topicProgress(topicId) {
+    const t = findTopic(topicId);
+    const words = wordsOf(t);
+    const known = words.filter((w) => progress[w.id]).length;
+    return { known, total: words.length };
+  }
+
+  const totalKnown = useMemo(() => Object.values(progress).filter(Boolean).length, [progress]);
+  const totalWords = useMemo(
+    () => [...TOPICS_WORK, ...TOPICS_GENERAL].reduce((n, t) => n + t.words.length, 0) + customWords.length,
+    [customWords]
+  );
+
+  function openTopic(id) { setActiveTopicId(id); setView("topic"); }
+
+  function startMixedPractice() {
+    const unknown = shuffle(ALL_WORK_WORDS.filter((w) => !progress[w.id]));
+    let pool = unknown.slice(0, 12);
+    if (pool.length < 8) {
+      const known = shuffle(ALL_WORK_WORDS.filter((w) => progress[w.id]));
+      pool = shuffle([...pool, ...known.slice(0, 12 - pool.length)]);
+    }
+    setMixedWords(pool);
+    setActiveTopicId("mixed");
+    setView("topic");
+  }
+
+  function startSession(mode, wordsOverride) {
+    lastSource.current = "topic";
+    setSessionWords(shuffle(wordsOverride || wordsOf(activeTopic)));
+    setSessionMode(mode);
+    setSessionKey((k) => k + 1);
+    setView(mode);
+  }
+
+  function repeatLearning(words) {
+    lastSource.current = "topic";
+    setSessionWords(shuffle(words));
+    setSessionMode("flashcards");
+    setSessionKey((k) => k + 1);
+    setView("flashcards");
+  }
+
+  function openExercise(id) {
+    setActiveExerciseId(id);
+    lastSource.current = "exercise";
+    setSessionKey((k) => k + 1);
+    setView("exercise");
+  }
+
+  function handleProgress(wordId, known) { setProgress((p) => ({ ...p, [wordId]: known })); }
+
+  function computeXp(stats, mode) {
+    if (mode === "flashcards") return stats.known * 5 + 5;
+    if (mode === "quiz") return stats.correct * 10 + 5;
+    if (mode === "spelling") return stats.correct * 15 + 5;
+    if (mode === "exercise") return stats.correct * 10 + 10;
+    return 5;
+  }
+
+  function applyXpAndStreak(earned) {
+    const today = todayStr();
+    const yest = yesterdayStr();
+    setStatsData((prev) => {
+      let streak = prev.streak, last = prev.lastPracticeDate;
+      if (last === today) { /* уже засчитан сегодня */ }
+      else if (last === yest) { streak = prev.streak + 1; last = today; }
+      else { streak = 1; last = today; }
+      const dailyXp = prev.dailyDate === today ? prev.dailyXp + earned : earned;
+      return { ...prev, xp: prev.xp + earned, streak, lastPracticeDate: last, dailyXp, dailyDate: today };
+    });
+  }
+
+  function setDailyGoal(g) { setStatsData((prev) => ({ ...prev, goal: g })); }
+
+  function handleFinish(stats) {
+    const mode = sessionMode;
+    const earned = computeXp(stats, mode);
+    applyXpAndStreak(earned);
+    setSummaryStats({ ...stats, mode, earnedXp: earned });
+    setView("summary");
+  }
+
+  function handleExerciseFinish(stats) {
+    const earned = computeXp(stats, "exercise");
+    applyXpAndStreak(earned);
+    setDoneExercises((d) => (d.includes(activeExerciseId) ? d : [...d, activeExerciseId]));
+    setSummaryStats({ ...stats, mode: "exercise", earnedXp: earned });
+    setView("summary");
+  }
+
+  function repeatSession() {
+    if (lastSource.current === "exercise") { setSessionKey((k) => k + 1); setView("exercise"); }
+    else startSession(summaryStats.mode);
+  }
+
+  function addCustomWord(word) {
+    const nw = { ...enrichWord(word, "custom"), id: `custom-${Date.now()}-${Math.floor(Math.random() * 1000)}` };
+    setCustomWords((cw) => [...cw, nw]);
+    setActiveTopicId("custom"); setView("topic");
+  }
+  function deleteCustomWord(id) {
+    setCustomWords((cw) => cw.filter((w) => w.id !== id));
+    setProgress((p) => { const np = { ...p }; delete np[id]; return np; });
+  }
+
+  function addCustomExercise(ex) {
+    const nex = { ...ex, id: `custom-ex-${Date.now()}`, icon: MessagesSquare, isCustom: true };
+    setCustomExercises((ces) => [...ces, nex]);
+    setView("exercises");
+  }
+  function deleteCustomExercise(id) {
+    setCustomExercises((ces) => ces.filter((e) => e.id !== id));
+    setDoneExercises((d) => d.filter((x) => x !== id));
+  }
+
+  function resetProgress() {
+    if (!resetArmed) { setResetArmed(true); setTimeout(() => setResetArmed(false), 3000); return; }
+    setProgress({});
+    try { localStorage.removeItem("suomen-polku-progress"); } catch (e) {}
+    setResetArmed(false);
+  }
+
+  function goBack() {
+    if (detailWord) { setDetailWord(null); return; }
+    if (view === "topic" || view === "addWord" || view === "summary" || view === "progress" || view === "exercises") setView("home");
+    else if (view === "flashcards" || view === "quiz" || view === "spelling") setView("topic");
+    else if (view === "exercise" || view === "createExercise") setView("exercises");
+  }
+  function onTouchStart(e) { const t = e.touches[0]; touchStart.current = { x: t.clientX, y: t.clientY }; }
+  function onTouchEnd(e) {
+    if (!touchStart.current) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - touchStart.current.x;
+    const dy = t.clientY - touchStart.current.y;
+    if (touchStart.current.x < 50 && dx > 70 && Math.abs(dy) < 60 && (view !== "home" || detailWord)) goBack();
+    touchStart.current = null;
+  }
+
+  const fontImport =
+    "@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');";
+
+  return (
+    <div
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+      style={{ background: C.paper, minHeight: "100vh", fontFamily: "'Manrope', sans-serif", color: C.ink, fontSize: 16, position: "relative" }}
+    >
+      <style>{`
+        ${fontImport}
+        * { box-sizing: border-box; }
+        .disp { font-family: 'Fraunces', serif; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        button, input, textarea, select { font-family: inherit; }
+        input:focus, textarea:focus { outline: none; border-color: ${C.spruce} !important; }
+        .flip-inner { transition: transform 0.45s cubic-bezier(.4,.2,.2,1); transform-style: preserve-3d; }
+        .flip-inner.flipped { transform: rotateY(180deg); }
+        .flip-face { backface-visibility: hidden; }
+        .flip-back { transform: rotateY(180deg); }
+        @media (prefers-reduced-motion: reduce) { .flip-inner { transition: none; } }
+        .press:active { transform: scale(0.97); }
+      `}</style>
+
+      <div style={{ maxWidth: 460, margin: "0 auto", minHeight: "100vh" }} className="px-4 pb-10">
+        {view === "home" && (
+          <HomeScreen
+            ready={ready} totalKnown={totalKnown} totalWords={totalWords} stats={statsData}
+            activeGroup={activeGroup} setActiveGroup={setActiveGroup}
+            topicProgress={topicProgress} openTopic={openTopic}
+            customCount={customWords.length}
+            onAddWord={() => setView("addWord")}
+            onOpenProgress={() => setView("progress")}
+            onOpenExercises={() => setView("exercises")}
+            onMixedPractice={startMixedPractice}
+            onSetGoal={setDailyGoal}
+            doneExercisesCount={doneExercises.length} totalExercises={allExercises.length}
+            resetArmed={resetArmed} resetProgress={resetProgress}
+          />
+        )}
+        {view === "progress" && (
+          <ProgressScreen topicProgress={topicProgress} totalKnown={totalKnown} totalWords={totalWords}
+            customCount={customWords.length} stats={statsData} onBack={() => setView("home")} />
+        )}
+        {view === "addWord" && <AddWordScreen onSave={addCustomWord} onCancel={() => setView("home")} />}
+        {view === "topic" && activeTopic && (
+          <TopicScreen
+            topic={activeTopic} group={topicGroup(activeTopic.id)} stats={topicProgress(activeTopic.id)}
+            onBack={() => setView("home")} onStart={(mode) => startSession(mode)}
+            onAddWord={() => setView("addWord")} onDeleteWord={deleteCustomWord}
+            onOpenDetail={setDetailWord}
+          />
+        )}
+        {view === "flashcards" && (
+          <FlashcardSession key={sessionKey} words={sessionWords} topic={activeTopic} group={topicGroup(activeTopic.id)}
+            onProgress={handleProgress} onFinish={handleFinish} onExit={() => setView("topic")} onOpenDetail={setDetailWord} />
+        )}
+        {view === "quiz" && (
+          <QuizSession key={sessionKey} words={sessionWords} topic={activeTopic} group={topicGroup(activeTopic.id)}
+            pool={poolForTopic(activeTopic.id)} onProgress={handleProgress} onFinish={handleFinish} onExit={() => setView("topic")} />
+        )}
+        {view === "spelling" && (
+          <SpellingSession key={sessionKey} words={sessionWords} topic={activeTopic} group={topicGroup(activeTopic.id)}
+            onProgress={handleProgress} onFinish={handleFinish} onExit={() => setView("topic")} />
+        )}
+        {view === "exercises" && (
+          <ExercisesListScreen exercises={allExercises} doneExercises={doneExercises}
+            onBack={() => setView("home")} onOpen={openExercise}
+            onCreate={() => setView("createExercise")} onDelete={deleteCustomExercise} />
+        )}
+        {view === "createExercise" && (
+          <CreateExerciseScreen onSave={addCustomExercise} onCancel={() => setView("exercises")} />
+        )}
+        {view === "exercise" && activeExercise && (
+          <ExerciseSession key={sessionKey} exercise={activeExercise} onFinish={handleExerciseFinish} onExit={() => setView("exercises")} />
+        )}
+        {view === "summary" && summaryStats && (
+          <SummaryScreen
+            topic={summaryStats.mode === "exercise" ? { ru: activeExercise?.title } : activeTopic}
+            group={summaryStats.mode === "exercise" ? "work" : topicGroup(activeTopic.id)}
+            stats={summaryStats} liveStats={statsData}
+            onHome={() => setView("home")} onRepeat={repeatSession}
+            onRepeatLearning={repeatLearning} />
+        )}
+      </div>
+
+      {detailWord && <WordDetailModal word={detailWord} onClose={() => setDetailWord(null)} />}
+    </div>
+  );
+}
+
+/* ===========================================================
+   МОДАЛЬНОЕ ОКНО — полная словарная карточка слова
+=========================================================== */
+function WordDetailModal({ word, onClose }) {
+  const rows = word.cases
+    ? CASE_LABELS.filter(([key]) => key !== "nominative").map(([key, label]) => [label, word.cases[key]])
+    : null;
+  const pluralForm = word.forms && word.forms.find((f) => f.label === "мн. число");
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed", inset: 0, background: "rgba(24,32,24,0.6)", zIndex: 50,
+        display: "flex", alignItems: "flex-end", justifyContent: "center",
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: C.paper, width: "100%", maxWidth: 460, maxHeight: "85vh", overflowY: "auto",
+          borderRadius: "24px 24px 0 0", padding: "18px 22px 34px",
+        }}
+      >
+        <div className="flex justify-end">
+          <button onClick={onClose} className="press" style={{
+            width: 34, height: 34, borderRadius: "50%", background: C.paperDeep, border: `1px solid ${C.line}`,
+            display: "flex", alignItems: "center", justifyContent: "center", color: C.ink,
+          }}>
+            <X size={17} />
+          </button>
+        </div>
+
+        <div className="text-center" style={{ marginTop: 4, marginBottom: 4 }}>
+          <div className="flex items-center justify-center gap-2">
+            <div className="disp" style={{ fontSize: 32, fontWeight: 700, color: C.spruceDeep }}>{word.fi}</div>
+            <button onClick={() => speakFi(word.fi)} className="press" style={{ background: "none", border: "none", color: C.lake, padding: 4 }}>
+              <Volume2 size={20} />
+            </button>
+          </div>
+          <div style={{ fontStyle: "italic", color: C.mist, fontSize: 15, marginTop: 2 }}>{word.pos}</div>
+          <div style={{ fontSize: 16, color: C.ink, marginTop: 6, fontWeight: 600 }}>{word.ru}</div>
+        </div>
+
+        {word.note && (
+          <div className="flex items-start gap-2 justify-center" style={{ fontSize: 13, color: C.mist, marginTop: 14, textAlign: "center" }}>
+            <Info size={14} style={{ marginTop: 2, flexShrink: 0 }} />
+            <span>{word.note}</span>
+          </div>
+        )}
+
+        {word.example && (
+          <div className="rounded-xl mt-4" style={{ background: C.lakeTint, border: `1px solid ${C.lake}33`, padding: "12px 14px" }}>
+            <div className="flex items-center gap-1.5 mb-1" style={{ color: C.lakeDeep }}>
+              <Quote size={12} />
+              <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.4 }}>Пример</span>
+            </div>
+            <div style={{ fontSize: 14, fontStyle: "italic", color: C.ink }}>{word.example.fi}</div>
+            <div style={{ fontSize: 13, color: C.mist, marginTop: 2 }}>{word.example.ru}</div>
+          </div>
+        )}
+
+        {word.extra && (
+          <div style={{ fontSize: 13, color: C.ink, marginTop: 14, whiteSpace: "pre-wrap", lineHeight: 1.5 }}>{word.extra}</div>
+        )}
+
+        {rows && (
+          <div className="rounded-2xl mt-5" style={{ border: `1px solid ${C.line}`, overflow: "hidden" }}>
+            <div style={{ background: C.spruceTint, padding: "10px 16px", borderBottom: `1px solid ${C.line}` }}>
+              <span className="mono" style={{ fontSize: 12, fontWeight: 700, letterSpacing: 0.5, color: C.spruceDeep, textTransform: "uppercase" }}>
+                Падежи · ед. число
+              </span>
+            </div>
+            <div style={{ padding: "6px 16px" }}>
+              {rows.map(([label, value], i) => (
+                <div key={i} style={{ padding: "9px 0", borderBottom: i < rows.length - 1 ? `1px solid ${C.line}` : "none" }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: C.ink }}>{label}</div>
+                  <div className="mono" style={{ fontSize: 15, color: C.spruceDeep, marginTop: 1 }}>{value}</div>
+                </div>
+              ))}
+            </div>
+            {pluralForm && (
+              <div style={{ padding: "10px 16px", borderTop: `1px solid ${C.line}`, background: C.spruceTint }}>
+                <div style={{ fontSize: 12, color: C.mist }}>Множественное число (именительный)</div>
+                <div className="mono" style={{ fontSize: 15, color: C.spruceDeep, marginTop: 1 }}>{pluralForm.value}</div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ===========================================================
+   ГЛАВНЫЙ ЭКРАН
+=========================================================== */
+function HomeScreen({
+  ready, totalKnown, totalWords, stats, activeGroup, setActiveGroup,
+  topicProgress, openTopic, customCount, onAddWord, onOpenProgress, onOpenExercises, onMixedPractice, onSetGoal,
+  doneExercisesCount, totalExercises, resetArmed, resetProgress,
+}) {
+  const pct = totalWords ? Math.round((totalKnown / totalWords) * 100) : 0;
+  const topics = activeGroup === "work" ? TOPICS_WORK : TOPICS_GENERAL;
+  const groupCol = groupColor(activeGroup);
+  const goal = stats.goal || DEFAULT_GOAL;
+  const dailyPct = Math.min(100, Math.round((stats.dailyXp / goal) * 100));
+  const goalReached = stats.dailyXp >= goal;
+  const [editGoal, setEditGoal] = useState(false);
+
+  return (
+    <div>
+      <div className="pt-8 pb-5">
+        <div className="flex items-center gap-2" style={{ color: C.spruce }}>
+          <Footprints size={19} />
+          <span className="mono" style={{ fontSize: 13, letterSpacing: 1, textTransform: "uppercase" }}>Suomen Polku</span>
+        </div>
+        <h1 className="disp" style={{ fontSize: 35, fontWeight: 700, marginTop: 8, lineHeight: 1.1, color: C.spruceDeep }}>
+          Финский на практике
+        </h1>
+        <p style={{ color: C.mist, marginTop: 8, fontSize: 15 }}>Слова для работы в магазине и повседневной жизни</p>
+      </div>
+
+      <div className="flex gap-3 mb-4">
+        <div className="flex items-center gap-2 rounded-2xl px-4 py-3" style={{ flex: 1, background: C.amberTint, border: `1px solid ${C.amber}55` }}>
+          <Flame size={20} color={C.amberDeep} />
+          <div>
+            <div className="mono" style={{ fontSize: 18, fontWeight: 700, color: C.amberDeep }}>{ready ? stats.streak : "…"}</div>
+            <div style={{ fontSize: 11, color: C.ink, opacity: 0.65 }}>дней подряд</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 rounded-2xl px-4 py-3" style={{ flex: 1, background: C.lakeTint, border: `1px solid ${C.lake}55` }}>
+          <Zap size={20} color={C.lakeDeep} />
+          <div>
+            <div className="mono" style={{ fontSize: 18, fontWeight: 700, color: C.lakeDeep }}>{ready ? stats.xp : "…"}</div>
+            <div style={{ fontSize: 11, color: C.ink, opacity: 0.65 }}>очков опыта</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-2xl px-4 py-3 mb-6" style={{ background: C.paperDeep, border: `1px solid ${C.line}` }}>
+        <div className="flex items-center justify-between mb-2">
+          <span style={{ fontSize: 13, fontWeight: 700, color: C.ink }}>Цель на сегодня</span>
+          <div className="flex items-center gap-2">
+            <span className="mono" style={{ fontSize: 12, color: goalReached ? C.spruce : C.mist }}>
+              {goalReached ? "выполнено!" : `${stats.dailyXp}/${goal} XP`}
+            </span>
+            <button onClick={() => setEditGoal((e) => !e)} className="press" style={{ background: "none", border: "none", color: C.lake, fontSize: 11, fontWeight: 700 }}>
+              изменить
+            </button>
+          </div>
+        </div>
+        <div style={{ height: 7, borderRadius: 4, background: C.line, overflow: "hidden" }}>
+          <div style={{ width: `${dailyPct}%`, height: "100%", background: goalReached ? C.spruce : C.amber, transition: "width .4s" }} />
+        </div>
+        {editGoal && (
+          <div className="flex gap-2 mt-3">
+            {GOAL_OPTIONS.map((g) => (
+              <button key={g} onClick={() => { onSetGoal(g); setEditGoal(false); }} className="press"
+                style={{
+                  flex: 1, padding: "8px 0", borderRadius: 10, fontSize: 13, fontWeight: 700,
+                  background: g === goal ? C.spruce : C.paper, color: g === goal ? C.paper : C.ink,
+                  border: `1px solid ${g === goal ? C.spruceDeep : C.line}`,
+                }}>
+                {g}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <button onClick={onMixedPractice} className="press w-full flex items-center justify-between rounded-2xl px-5 py-4 mb-3"
+        style={{ background: C.spruceDeep, border: `1px solid ${C.spruce}` }}>
+        <div className="flex items-center gap-3">
+          <Shuffle size={20} color={C.paper} />
+          <div style={{ textAlign: "left" }}>
+            <div style={{ fontWeight: 700, fontSize: 15, color: C.paper }}>Смешанная тренировка</div>
+            <div style={{ fontSize: 13, color: "#CFE0D8" }}>Подборка из невыученных слов, вперемешку</div>
+          </div>
+        </div>
+        <ChevronRight size={20} color={C.paper} />
+      </button>
+
+      <button onClick={onOpenProgress} className="press w-full flex items-center justify-between rounded-2xl px-5 py-4 mb-6"
+        style={{ background: C.paperDeep, border: `1px solid ${C.line}` }}>
+        <div style={{ textAlign: "left" }}>
+          <div className="mono" style={{ fontSize: 24, fontWeight: 700, color: C.spruceDeep }}>{ready ? totalKnown : "…"}/{totalWords}</div>
+          <div style={{ fontSize: 13, color: C.mist }}>слов выучено · открыть прогресс</div>
+        </div>
+        <div className="flex items-center gap-3">
+          <div style={{ width: 84 }}>
+            <div style={{ height: 7, borderRadius: 4, background: C.line, overflow: "hidden" }}>
+              <div style={{ width: `${pct}%`, height: "100%", background: C.amber, transition: "width .4s" }} />
+            </div>
+            <div className="mono" style={{ fontSize: 12, color: C.mist, marginTop: 5, textAlign: "right" }}>{pct}%</div>
+          </div>
+          <BarChart3 size={18} color={C.mist} />
+        </div>
+      </button>
+
+      <button onClick={onOpenExercises} className="press w-full flex items-center justify-between rounded-2xl px-5 py-4 mb-3"
+        style={{ background: C.lake, border: `1px solid ${C.lakeDeep}` }}>
+        <div className="flex items-center gap-3">
+          <MessagesSquare size={20} color={C.paper} />
+          <div style={{ textAlign: "left" }}>
+            <div style={{ fontWeight: 700, fontSize: 15, color: C.paper }}>Задания: рабочие диалоги</div>
+            <div style={{ fontSize: 13, color: "#DCEBF4" }}>{doneExercisesCount}/{totalExercises} пройдено · вставляй нужное слово</div>
+          </div>
+        </div>
+        <ChevronRight size={20} color={C.paper} />
+      </button>
+
+      <button onClick={() => openTopic("custom")} className="press w-full flex items-center justify-between rounded-2xl px-5 py-4 mb-3"
+        style={{ background: C.amber, border: `1px solid ${C.amberDeep}` }}>
+        <div className="flex items-center gap-3">
+          <Sparkles size={20} color={C.paper} />
+          <div style={{ textAlign: "left" }}>
+            <div style={{ fontWeight: 700, fontSize: 15, color: C.paper }}>Мои слова</div>
+            <div style={{ fontSize: 13, color: "#FBEFDA" }}>{customCount} слов, которые узнали на смене</div>
+          </div>
+        </div>
+        <ChevronRight size={20} color={C.paper} />
+      </button>
+
+      <button onClick={onAddWord} className="press w-full flex items-center justify-center gap-2 rounded-2xl px-5 py-4 mb-8"
+        style={{ background: "transparent", border: `1.5px dashed ${C.mist}`, color: C.spruce, fontWeight: 700, fontSize: 15 }}>
+        <Plus size={19} /> Добавить новое слово
+      </button>
+
+      <div className="flex gap-2 mb-6" style={{ background: C.paperDeep, borderRadius: 15, padding: 5 }}>
+        <button onClick={() => setActiveGroup("work")} className="press flex-1 flex items-center justify-center gap-2"
+          style={{ padding: "11px 0", borderRadius: 11, fontSize: 14, fontWeight: 700,
+            background: activeGroup === "work" ? C.lake : "transparent",
+            color: activeGroup === "work" ? C.paper : C.mist }}>
+          <Store size={16} /> Работа в магазине
+        </button>
+        <button onClick={() => setActiveGroup("general")} className="press flex-1 flex items-center justify-center gap-2"
+          style={{ padding: "11px 0", borderRadius: 11, fontSize: 14, fontWeight: 700,
+            background: activeGroup === "general" ? C.spruce : "transparent",
+            color: activeGroup === "general" ? C.paper : C.mist }}>
+          <BookOpen size={16} /> Основы языка
+        </button>
+      </div>
+
+      <div style={{ position: "relative" }}>
+        <div style={{ position: "absolute", left: "50%", top: 10, bottom: 10, width: 0,
+          borderLeft: `2px dashed ${C.line}`, transform: "translateX(-1px)" }} />
+        <div className="flex flex-col gap-7">
+          {topics.map((t, i) => {
+            const { known, total } = topicProgress(t.id);
+            const Icon = t.icon;
+            const done = total > 0 && known === total;
+            const alignEnd = i % 2 === 1;
+            return (
+              <div key={t.id} className={`flex ${alignEnd ? "justify-end" : "justify-start"}`}>
+                <button onClick={() => openTopic(t.id)} className="press" style={{
+                  width: "70%", minWidth: 230, background: done ? C.amberTint : groupCol.tint,
+                  border: `1.5px solid ${done ? C.amber : groupCol.main}55`, borderRadius: 19,
+                  padding: "16px 18px", textAlign: "left", boxShadow: "0 2px 0 rgba(24,32,24,0.05)",
+                  position: "relative", zIndex: 1,
+                }}>
+                  <div className="flex items-center gap-3 mb-3">
+                    <div style={{ width: 38, height: 38, borderRadius: "50%", background: done ? C.amber : groupCol.main,
+                      display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <Icon size={18} color={C.paper} />
+                    </div>
+                    <div>
+                      <div className="disp" style={{ fontWeight: 600, fontSize: 17, color: C.spruceDeep, lineHeight: 1.15 }}>{t.fi}</div>
+                      <div style={{ fontSize: 13, color: C.ink, opacity: 0.7 }}>{t.ru}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div style={{ flex: 1, height: 5, borderRadius: 3, background: "rgba(255,255,255,0.6)", overflow: "hidden" }}>
+                      <div style={{ width: `${(known / total) * 100}%`, height: "100%", background: done ? C.amber : groupCol.main }} />
+                    </div>
+                    <span className="mono" style={{ fontSize: 12, color: C.ink, opacity: 0.7 }}>{known}/{total}</span>
+                  </div>
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="flex justify-center mt-10">
+        <button onClick={resetProgress} className="press" style={{
+          fontSize: 13, color: resetArmed ? C.berry : C.mist, background: "none", border: "none",
+          display: "flex", alignItems: "center", gap: 6, padding: 8,
+        }}>
+          <RefreshCw size={14} /> {resetArmed ? "Нажмите ещё раз, чтобы сбросить" : "Сбросить весь прогресс"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ===========================================================
+   СПИСОК ЗАДАНИЙ
+=========================================================== */
+function ExercisesListScreen({ exercises, doneExercises, onBack, onOpen, onCreate, onDelete }) {
+  const [armedDelete, setArmedDelete] = useState(null);
+
+  function handleDeleteClick(id) {
+    if (armedDelete === id) { onDelete(id); setArmedDelete(null); }
+    else { setArmedDelete(id); setTimeout(() => setArmedDelete((a) => (a === id ? null : a)), 2500); }
+  }
+
+  return (
+    <div className="pt-8">
+      <BackButton onClick={onBack} label="Главная" />
+      <div className="disp" style={{ fontSize: 28, fontWeight: 700, color: C.spruceDeep, marginTop: 16, marginBottom: 6 }}>
+        Рабочие диалоги
+      </div>
+      <div style={{ fontSize: 14, color: C.mist, marginBottom: 16 }}>
+        Короткие ситуации с покупателями и коллегами. Вставляйте нужное слово или фразу вместо пропуска.
+      </div>
+
+      <button onClick={onCreate} className="press w-full flex items-center justify-center gap-2 rounded-2xl px-5 py-3.5 mb-6"
+        style={{ background: "transparent", border: `1.5px dashed ${C.mist}`, color: C.lake, fontWeight: 700, fontSize: 14 }}>
+        <Plus size={18} /> Добавить своё задание
+      </button>
+
+      <div className="flex flex-col gap-3">
+        {exercises.map((ex) => {
+          const Icon = ex.icon;
+          const isDone = doneExercises.includes(ex.id);
+          return (
+            <div key={ex.id} className="flex items-center gap-2">
+              <button onClick={() => onOpen(ex.id)} className="press" style={{
+                flex: 1, background: isDone ? C.amberTint : C.lakeTint, border: `1px solid ${isDone ? C.amber : C.lake}55`, borderRadius: 17,
+                padding: "16px 18px", display: "flex", alignItems: "center", gap: 14, textAlign: "left",
+              }}>
+                <div style={{ width: 42, height: 42, borderRadius: "50%", background: isDone ? C.amber : C.lake,
+                  display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Icon size={19} color={C.paper} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div className="flex items-center gap-2">
+                    <span style={{ fontWeight: 700, fontSize: 15 }}>{ex.title}</span>
+                    {ex.isCustom && (
+                      <span className="mono" style={{ fontSize: 9, color: C.amberDeep, border: `1px solid ${C.amber}`, borderRadius: 6, padding: "1px 5px" }}>СВОЁ</span>
+                    )}
+                  </div>
+                  <div style={{ fontSize: 12.5, color: C.ink, opacity: 0.65, marginTop: 2 }}>{ex.situation}</div>
+                </div>
+                {isDone ? <Check size={18} color={C.amberDeep} /> : <ChevronRight size={18} color={C.lakeDeep} />}
+              </button>
+              {ex.isCustom && (
+                <button onClick={() => handleDeleteClick(ex.id)} className="press" style={{
+                  padding: 10, background: "none", border: "none", color: armedDelete === ex.id ? C.berry : C.mist,
+                }}>
+                  <Trash2 size={16} />
+                </button>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ===========================================================
+   СОЗДАНИЕ СВОЕГО ЗАДАНИЯ
+=========================================================== */
+function CreateExerciseScreen({ onSave, onCancel }) {
+  const [title, setTitle] = useState("");
+  const [situation, setSituation] = useState("");
+  const [lines, setLines] = useState([]);
+  const [speaker, setSpeaker] = useState("Ты");
+  const [template, setTemplate] = useState("");
+  const [correct, setCorrect] = useState("");
+  const [wrongText, setWrongText] = useState("");
+  const [ru, setRu] = useState("");
+  const [error, setError] = useState("");
+
+  const inputStyle = {
+    width: "100%", padding: "12px 14px", borderRadius: 12,
+    border: `1.5px solid ${C.line}`, background: C.paper, fontSize: 15, color: C.ink,
+  };
+  const labelStyle = { fontSize: 12.5, color: C.mist, marginBottom: 6, display: "block", fontWeight: 600 };
+
+  function addLine() {
+    setError("");
+    if (!template.includes("___")) { setError("В реплике должен быть пропуск: ___"); return; }
+    if (!correct.trim() || !ru.trim()) { setError("Заполните правильный ответ и перевод"); return; }
+    const wrongs = wrongText.split(",").map((s) => s.trim()).filter(Boolean).slice(0, 3);
+    if (wrongs.length < 1) { setError("Добавьте хотя бы один явно неверный вариант через запятую"); return; }
+    const side = RIGHT_SPEAKERS.has(speaker.trim().toLowerCase()) ? "right" : "left";
+    const options = shuffle([correct.trim(), ...wrongs]);
+    setLines((ls) => [...ls, { speaker: speaker.trim() || "Собеседник", side, template: template.trim(), correct: correct.trim(), options, ru: ru.trim() }]);
+    setTemplate(""); setCorrect(""); setWrongText(""); setRu("");
+  }
+
+  function removeLine(i) { setLines((ls) => ls.filter((_, idx) => idx !== i)); }
+
+  function submit() {
+    if (!title.trim() || !situation.trim()) { setError("Заполните название и описание ситуации"); return; }
+    if (lines.length < 2) { setError("Добавьте минимум 2 реплики"); return; }
+    onSave({ title: title.trim(), situation: situation.trim(), lines });
+  }
+
+  return (
+    <div className="pt-8">
+      <BackButton onClick={onCancel} label="Задания" />
+      <div className="disp" style={{ fontSize: 26, fontWeight: 700, color: C.spruceDeep, marginTop: 16, marginBottom: 6 }}>
+        Своё задание
+      </div>
+      <div style={{ fontSize: 13, color: C.mist, marginBottom: 20 }}>
+        Опишите ситуацию, затем добавьте реплики с пропуском <span className="mono">___</span>. Совет: делайте неверные варианты явно неподходящими по смыслу — так задание не будет двусмысленным.
+      </div>
+
+      <div className="flex flex-col gap-4 mb-6">
+        <div>
+          <label style={labelStyle}>Название задания *</label>
+          <input style={inputStyle} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="напр. Вопрос про доставку" />
+        </div>
+        <div>
+          <label style={labelStyle}>Ситуация *</label>
+          <input style={inputStyle} value={situation} onChange={(e) => setSituation(e.target.value)} placeholder="напр. Покупатель спрашивает про самовывоз" />
+        </div>
+      </div>
+
+      {lines.length > 0 && (
+        <div className="flex flex-col gap-2 mb-6">
+          {lines.map((l, i) => (
+            <div key={i} className="flex items-center gap-2 rounded-xl" style={{ background: C.paperDeep, border: `1px solid ${C.line}`, padding: "10px 12px" }}>
+              <div style={{ flex: 1 }}>
+                <div className="mono" style={{ fontSize: 10, color: C.mist }}>{l.speaker}</div>
+                <div style={{ fontSize: 13.5 }}>{l.template.replace("___", l.correct)}</div>
+                <div style={{ fontSize: 12, color: C.mist }}>{l.ru}</div>
+              </div>
+              <button onClick={() => removeLine(i)} className="press" style={{ background: "none", border: "none", color: C.berry, padding: 6 }}>
+                <Trash2 size={15} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="rounded-2xl mb-6" style={{ background: C.lakeTint, border: `1px solid ${C.lake}44`, padding: 16 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 12 }}>Новая реплика</div>
+        <div className="flex flex-col gap-3">
+          <div>
+            <label style={labelStyle}>Кто говорит (напишите «Ты», если это ваша реплика)</label>
+            <input style={inputStyle} value={speaker} onChange={(e) => setSpeaker(e.target.value)} placeholder="Ты / Покупатель / Коллега" />
+          </div>
+          <div>
+            <label style={labelStyle}>Фраза на финском с пропуском ___</label>
+            <input style={inputStyle} value={template} onChange={(e) => setTemplate(e.target.value)} placeholder="напр. ___ nouto mahdollinen?" autoCapitalize="off" autoCorrect="off" />
+          </div>
+          <div>
+            <label style={labelStyle}>Правильное слово/фраза для пропуска</label>
+            <input style={inputStyle} value={correct} onChange={(e) => setCorrect(e.target.value)} placeholder="напр. Onko" autoCapitalize="off" autoCorrect="off" />
+          </div>
+          <div>
+            <label style={labelStyle}>Явно неверные варианты (через запятую, 1–3 штуки)</label>
+            <input style={inputStyle} value={wrongText} onChange={(e) => setWrongText(e.target.value)} placeholder="напр. Kiitos, Näkemiin, Anteeksi" autoCapitalize="off" autoCorrect="off" />
+          </div>
+          <div>
+            <label style={labelStyle}>Перевод всей реплики на русский</label>
+            <input style={inputStyle} value={ru} onChange={(e) => setRu(e.target.value)} placeholder="напр. Возможен самовывоз?" />
+          </div>
+        </div>
+        <button onClick={addLine} className="press w-full mt-4" style={{
+          padding: "12px 0", borderRadius: 13, background: C.lake, color: C.paper, fontWeight: 700, fontSize: 14,
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
+        }}>
+          <Plus size={16} /> Добавить реплику
+        </button>
+      </div>
+
+      {error && <div style={{ color: C.berry, fontSize: 13, marginBottom: 12 }}>{error}</div>}
+
+      <button onClick={submit} className="press w-full" style={{
+        padding: "17px 0", borderRadius: 17, background: C.amber, color: C.paper, fontWeight: 700, fontSize: 16,
+      }}>
+        Сохранить задание ({lines.length} {lines.length === 1 ? "реплика" : "реплики"})
+      </button>
+    </div>
+  );
+}
+
+/* ===========================================================
+   ЗАДАНИЕ — диалог с пропусками
+   В истории всегда показывается верный вариант (чтобы не терять смысл
+   диалога), а иконка рядом с именем говорящего отмечает, была ли попытка
+   правильной с первого раза.
+=========================================================== */
+function ExerciseSession({ exercise, onFinish, onExit }) {
+  const [idx, setIdx] = useState(0);
+  const [resolved, setResolved] = useState([]);
+  const [selected, setSelected] = useState(null);
+  const [correct, setCorrect] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [best, setBest] = useState(0);
+  const [options, setOptions] = useState(() => shuffle(exercise.lines[0].options));
+
+  const line = exercise.lines[idx];
+  const isLast = idx === exercise.lines.length - 1;
+
+  function pick(opt) {
+    if (selected) return;
+    const isRight = opt === line.correct;
+    setSelected(opt);
+    if (isRight) { setCorrect((n) => n + 1); setStreak((s) => { const ns = s + 1; setBest((b) => Math.max(b, ns)); return ns; }); }
+    else setStreak(0);
+  }
+
+  function next() {
+    const finishedLine = { ...line, wasCorrect: selected === line.correct };
+    const nextResolved = [...resolved, finishedLine];
+    setResolved(nextResolved);
+    setSelected(null);
+    if (idx + 1 < exercise.lines.length) {
+      const ni = idx + 1;
+      setIdx(ni);
+      setOptions(shuffle(exercise.lines[ni].options));
+    } else {
+      onFinish({ correct, total: exercise.lines.length, best });
+    }
+  }
+
+  function renderTemplate(text, fillValue) {
+    const parts = text.split("___");
+    return (
+      <span>
+        {parts[0]}
+        <span className="mono" style={{ fontWeight: 700, color: C.lakeDeep }}>{fillValue}</span>
+        {parts[1]}
+      </span>
+    );
+  }
+
+  return (
+    <div className="pt-8">
+      <div className="flex items-center justify-between">
+        <BackButton onClick={onExit} label="Задания" />
+        <div className="flex items-center gap-3">
+          {streak > 1 && <span className="mono flex items-center gap-1" style={{ fontSize: 13, color: C.amber }}><Flame size={15} /> {streak}</span>}
+          <span className="mono" style={{ fontSize: 13, color: C.mist }}>{idx + 1}/{exercise.lines.length}</span>
+        </div>
+      </div>
+      <div style={{ height: 5, borderRadius: 3, background: C.line, marginTop: 16, overflow: "hidden" }}>
+        <div style={{ width: `${(idx / exercise.lines.length) * 100}%`, height: "100%", background: C.lake, transition: "width .3s" }} />
+      </div>
+
+      <div className="disp" style={{ fontSize: 20, fontWeight: 700, color: C.spruceDeep, marginTop: 18 }}>{exercise.title}</div>
+      <div style={{ fontSize: 13, color: C.mist, marginBottom: 18 }}>{exercise.situation}</div>
+
+      <div className="flex flex-col gap-3">
+        {resolved.map((l, i) => (
+          <div key={i} className={`flex ${l.side === "right" ? "justify-end" : "justify-start"}`}>
+            <div style={{
+              maxWidth: "85%", padding: "10px 14px", borderRadius: 16,
+              background: l.side === "right" ? C.lake : C.paperDeep,
+              color: l.side === "right" ? C.paper : C.ink,
+              borderBottomRightRadius: l.side === "right" ? 4 : 16,
+              borderBottomLeftRadius: l.side === "right" ? 16 : 4,
+            }}>
+              <div className="flex items-center gap-1.5" style={{ marginBottom: 3 }}>
+                <span className="mono" style={{ fontSize: 10, opacity: 0.75 }}>{l.speaker}</span>
+                {l.wasCorrect
+                  ? <Check size={11} color={l.side === "right" ? "#CFE0D8" : C.spruce} />
+                  : <X size={11} color={l.side === "right" ? "#F3D2D5" : C.berry} />}
+              </div>
+              <div style={{ fontSize: 14.5 }}>{renderTemplate(l.template, l.correct)}</div>
+              <div style={{ fontSize: 12, opacity: 0.8, marginTop: 3 }}>{l.ru}</div>
+            </div>
+          </div>
+        ))}
+
+        <div className={`flex ${line.side === "right" ? "justify-end" : "justify-start"}`}>
+          <div style={{
+            maxWidth: "85%", padding: "10px 14px", borderRadius: 16,
+            background: line.side === "right" ? "rgba(37,105,166,0.12)" : C.paperDeep,
+            border: `1.5px dashed ${line.side === "right" ? C.lake : C.mist}`,
+            color: C.ink,
+          }}>
+            <div className="mono" style={{ fontSize: 10, color: C.mist, marginBottom: 3 }}>{line.speaker}</div>
+            <div style={{ fontSize: 14.5 }}>
+              {line.template.split("___")[0]}
+              <span className="mono" style={{ fontWeight: 700, color: C.mist }}>___</span>
+              {line.template.split("___")[1]}
+            </div>
+            <div style={{ fontSize: 12, color: C.mist, marginTop: 3 }}>{line.ru}</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-2.5 mt-6">
+        {options.map((opt) => {
+          const isCorrectOpt = opt === line.correct;
+          const isSelected = selected === opt;
+          let bg = C.paperDeep, border = C.line, color = C.ink;
+          if (selected) {
+            if (isCorrectOpt) { bg = C.spruce; border = C.spruceDeep; color = C.paper; }
+            else if (isSelected) { bg = C.berry; border = C.berry; color = C.paper; }
+          }
+          return (
+            <button key={opt} onClick={() => pick(opt)} className="press" disabled={!!selected} style={{
+              padding: "14px 16px", borderRadius: 14, background: bg, border: `1.5px solid ${border}`, color,
+              fontSize: 15, fontWeight: 600, textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center",
+            }}>
+              <span className="mono">{opt}</span>
+              {selected && isCorrectOpt && <Check size={18} />}
+              {selected && isSelected && !isCorrectOpt && <X size={18} />}
+            </button>
+          );
+        })}
+      </div>
+
+      {selected && (
+        <button onClick={next} className="press w-full" style={{
+          marginTop: 18, padding: "16px 0", borderRadius: 16, background: C.spruceDeep,
+          color: C.paper, fontWeight: 700, fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+        }}>{isLast ? "Завершить" : "Далее"} <ChevronRight size={17} /></button>
+      )}
+    </div>
+  );
+}
+
+/* ===========================================================
+   ЭКРАН ПРОГРЕССА
+=========================================================== */
+function ProgressScreen({ topicProgress, totalKnown, totalWords, customCount, stats, onBack }) {
+  const workTotals = TOPICS_WORK.reduce((acc, t) => {
+    const p = topicProgress(t.id); return { known: acc.known + p.known, total: acc.total + p.total };
+  }, { known: 0, total: 0 });
+  const generalTotals = TOPICS_GENERAL.reduce((acc, t) => {
+    const p = topicProgress(t.id); return { known: acc.known + p.known, total: acc.total + p.total };
+  }, { known: 0, total: 0 });
+  const customTotals = topicProgress("custom");
+  const overallPct = totalWords ? Math.round((totalKnown / totalWords) * 100) : 0;
+
+  function SectionRow({ label, icon: Icon, color, known, total }) {
+    const pct = total ? Math.round((known / total) * 100) : 0;
+    return (
+      <div className="mb-4">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <Icon size={16} color={color} />
+            <span style={{ fontWeight: 700, fontSize: 14 }}>{label}</span>
+          </div>
+          <span className="mono" style={{ fontSize: 13, color: C.mist }}>{known}/{total}</span>
+        </div>
+        <div style={{ height: 8, borderRadius: 4, background: C.line, overflow: "hidden" }}>
+          <div style={{ width: `${pct}%`, height: "100%", background: color, transition: "width .4s" }} />
+        </div>
+      </div>
+    );
+  }
+
+  function TopicRow({ t }) {
+    const { known, total } = topicProgress(t.id);
+    const pct = total ? (known / total) * 100 : 0;
+    const Icon = t.icon;
+    const col = groupColor(topicGroup(t.id));
+    return (
+      <div className="flex items-center gap-3" style={{ padding: "10px 0", borderBottom: `1px solid ${C.line}` }}>
+        <Icon size={16} color={col.main} style={{ flexShrink: 0 }} />
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 14, fontWeight: 600 }}>{t.ru}</div>
+          <div style={{ height: 4, borderRadius: 3, background: C.line, overflow: "hidden", marginTop: 5 }}>
+            <div style={{ width: `${pct}%`, height: "100%", background: col.main }} />
+          </div>
+        </div>
+        <span className="mono" style={{ fontSize: 12, color: C.mist, flexShrink: 0 }}>{known}/{total}</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="pt-8">
+      <BackButton onClick={onBack} label="Главная" />
+      <div className="disp" style={{ fontSize: 28, fontWeight: 700, color: C.spruceDeep, marginTop: 16, marginBottom: 4 }}>
+        Прогресс обучения
+      </div>
+      <div style={{ fontSize: 14, color: C.mist, marginBottom: 22 }}>Всего выучено {totalKnown} из {totalWords} слов ({overallPct}%)</div>
+
+      <div className="flex gap-3 mb-8">
+        <div className="flex items-center gap-2 rounded-2xl px-4 py-3" style={{ flex: 1, background: C.amberTint, border: `1px solid ${C.amber}55` }}>
+          <Flame size={18} color={C.amberDeep} />
+          <div><div className="mono" style={{ fontSize: 17, fontWeight: 700, color: C.amberDeep }}>{stats.streak}</div><div style={{ fontSize: 11, color: C.ink, opacity: 0.65 }}>дней подряд</div></div>
+        </div>
+        <div className="flex items-center gap-2 rounded-2xl px-4 py-3" style={{ flex: 1, background: C.lakeTint, border: `1px solid ${C.lake}55` }}>
+          <Zap size={18} color={C.lakeDeep} />
+          <div><div className="mono" style={{ fontSize: 17, fontWeight: 700, color: C.lakeDeep }}>{stats.xp}</div><div style={{ fontSize: 11, color: C.ink, opacity: 0.65 }}>очков опыта</div></div>
+        </div>
+      </div>
+
+      <div className="rounded-2xl mb-8" style={{ background: C.paperDeep, border: `1px solid ${C.line}`, padding: 20 }}>
+        <SectionRow label="Работа в магазине" icon={Store} color={C.lake} known={workTotals.known} total={workTotals.total} />
+        <SectionRow label="Основы языка" icon={BookOpen} color={C.spruce} known={generalTotals.known} total={generalTotals.total} />
+        <div style={{ marginBottom: 0 }}>
+          <SectionRow label="Мои слова" icon={Sparkles} color={C.amber} known={customTotals.known} total={customTotals.total || customCount} />
+        </div>
+      </div>
+
+      <div className="mono" style={{ fontSize: 13, color: C.mist, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>
+        Работа в магазине
+      </div>
+      <div className="mb-8">
+        {TOPICS_WORK.map((t) => <TopicRow key={t.id} t={t} />)}
+      </div>
+
+      <div className="mono" style={{ fontSize: 13, color: C.mist, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>
+        Основы языка
+      </div>
+      <div>
+        {TOPICS_GENERAL.map((t) => <TopicRow key={t.id} t={t} />)}
+      </div>
+    </div>
+  );
+}
+
+/* ===========================================================
+   ДОБАВЛЕНИЕ СВОЕГО СЛОВА
+=========================================================== */
+function AddWordScreen({ onSave, onCancel }) {
+  const [fi, setFi] = useState("");
+  const [ru, setRu] = useState("");
+  const [note, setNote] = useState("");
+  const [extra, setExtra] = useState("");
+  const [error, setError] = useState("");
+
+  function submit() {
+    if (!fi.trim() || !ru.trim()) { setError("Заполните финское слово и перевод"); return; }
+    onSave({ fi: fi.trim(), ru: ru.trim(), note: note.trim() || undefined, extra: extra.trim() || undefined });
+  }
+
+  const inputStyle = {
+    width: "100%", padding: "14px 16px", borderRadius: 13,
+    border: `1.5px solid ${C.line}`, background: C.paper, fontSize: 16, color: C.ink,
+  };
+  const labelStyle = { fontSize: 13, color: C.mist, marginBottom: 7, display: "block", fontWeight: 600 };
+
+  return (
+    <div className="pt-8">
+      <BackButton onClick={onCancel} label="Отмена" />
+      <div className="disp" style={{ fontSize: 28, fontWeight: 700, color: C.spruceDeep, marginTop: 18, marginBottom: 22 }}>
+        Новое слово
+      </div>
+      <div className="flex flex-col gap-5">
+        <div>
+          <label style={labelStyle}>Финское слово или фраза *</label>
+          <input style={inputStyle} value={fi} onChange={(e) => setFi(e.target.value)}
+            placeholder="напр. valikoima" autoCapitalize="off" autoCorrect="off" />
+        </div>
+        <div>
+          <label style={labelStyle}>Перевод на русский *</label>
+          <input style={inputStyle} value={ru} onChange={(e) => setRu(e.target.value)} placeholder="напр. ассортимент" />
+        </div>
+        <div>
+          <label style={labelStyle}>Заметка (необязательно)</label>
+          <input style={inputStyle} value={note} onChange={(e) => setNote(e.target.value)}
+            placeholder="контекст, где услышали слово" />
+        </div>
+        <div>
+          <label style={labelStyle}>Доп. информация (необязательно)</label>
+          <textarea style={{ ...inputStyle, minHeight: 90, resize: "vertical" }} value={extra}
+            onChange={(e) => setExtra(e.target.value)}
+            placeholder="множественное число, прошедшее время, синонимы и т.д." />
+        </div>
+        {error && <div style={{ color: C.berry, fontSize: 14 }}>{error}</div>}
+      </div>
+
+      <button onClick={submit} className="press w-full mt-9" style={{
+        padding: "17px 0", borderRadius: 17, background: C.amber, color: C.paper, fontWeight: 700, fontSize: 16,
+      }}>
+        Сохранить слово
+      </button>
+    </div>
+  );
+}
+
+/* ===========================================================
+   ЭКРАН ТЕМЫ
+=========================================================== */
+function TopicScreen({ topic, group, stats, onBack, onStart, onAddWord, onDeleteWord, onOpenDetail }) {
+  const Icon = topic.icon;
+  const words = (topic.id === "custom" || topic.id === "mixed") ? topic.words : wordsWithIds(topic);
+  const isCustom = topic.id === "custom";
+  const col = groupColor(group);
+  const [armedDelete, setArmedDelete] = useState(null);
+  const [filterText, setFilterText] = useState("");
+
+  function handleDeleteClick(id) {
+    if (armedDelete === id) { onDeleteWord(id); setArmedDelete(null); }
+    else { setArmedDelete(id); setTimeout(() => setArmedDelete((a) => (a === id ? null : a)), 2500); }
+  }
+
+  const filtered = filterText.trim()
+    ? words.filter((w) => normalize(w.fi).includes(normalize(filterText)) || normalize(w.ru).includes(normalize(filterText)))
+    : words;
+
+  return (
+    <div className="pt-8">
+      <BackButton onClick={onBack} label={topic.id === "mixed" ? "Главная" : "Все темы"} />
+      <div className="flex items-center gap-3 mt-6 mb-1">
+        <div style={{ width: 48, height: 48, borderRadius: "50%", background: col.main,
+          display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <Icon size={22} color={C.paper} />
+        </div>
+        <div>
+          <div className="disp" style={{ fontSize: 24, fontWeight: 700, color: C.spruceDeep }}>{topic.fi}</div>
+          <div style={{ fontSize: 14, color: C.mist }}>{topic.ru} · {stats.known}/{stats.total} изучено</div>
+        </div>
+      </div>
+
+      {words.length === 0 ? (
+        <div className="mt-8 rounded-2xl text-center" style={{ background: C.paperDeep, border: `1px solid ${C.line}`, padding: 26 }}>
+          <div style={{ fontSize: 15, color: C.mist, marginBottom: 16 }}>Здесь пока пусто. Добавьте первое слово, которое узнали на смене.</div>
+          <button onClick={onAddWord} className="press" style={{
+            padding: "12px 20px", borderRadius: 15, background: C.amber, color: C.paper, fontWeight: 700, fontSize: 14,
+            display: "inline-flex", alignItems: "center", gap: 7,
+          }}>
+            <Plus size={16} /> Добавить слово
+          </button>
+        </div>
+      ) : (
+        <>
+          <div className="flex flex-col gap-3 mt-8">
+            <button onClick={() => onStart("flashcards")} className="press" style={{ ...cardBtnStyle(col), borderLeft: `4px solid ${col.main}` }}>
+              <div className="flex items-center gap-3">
+                <Layers size={22} color={col.main} />
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 16 }}>Карточки</div>
+                  <div style={{ fontSize: 13, color: C.mist }}>Свайп вправо — знаю, влево — не знаю</div>
+                </div>
+              </div>
+              <ChevronRight size={20} color={col.main} />
+            </button>
+
+            <button onClick={() => onStart("quiz")} className="press" style={{ ...cardBtnStyle(col), borderLeft: `4px solid ${col.main}` }}>
+              <div className="flex items-center gap-3">
+                <Brain size={22} color={col.main} />
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 16 }}>Тест</div>
+                  <div style={{ fontSize: 13, color: C.mist }}>Выбор перевода из четырёх вариантов</div>
+                </div>
+              </div>
+              <ChevronRight size={20} color={col.main} />
+            </button>
+
+            <button onClick={() => onStart("spelling")} className="press" style={{ ...cardBtnStyle(col), borderLeft: `4px solid ${col.main}` }}>
+              <div className="flex items-center gap-3">
+                <PenLine size={22} color={col.main} />
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 16 }}>Правописание</div>
+                  <div style={{ fontSize: 13, color: C.mist }}>Напишите слово по-фински на слух перевода</div>
+                </div>
+              </div>
+              <ChevronRight size={20} color={col.main} />
+            </button>
+          </div>
+
+          <div className="mt-10">
+            <div className="flex items-center justify-between mb-3">
+              <div className="mono" style={{ fontSize: 13, color: C.mist, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                Слова в теме · нажмите для подробностей
+              </div>
+              {isCustom && (
+                <button onClick={onAddWord} className="press flex items-center gap-1" style={{ background: "none", border: "none", color: C.amber, fontSize: 13, fontWeight: 700 }}>
+                  <Plus size={14} /> добавить
+                </button>
+              )}
+            </div>
+
+            {words.length > 6 && (
+              <div className="flex items-center gap-2 mb-3" style={{
+                background: C.paperDeep, border: `1px solid ${C.line}`, borderRadius: 12, padding: "9px 12px",
+              }}>
+                <Search size={15} color={C.mist} />
+                <input
+                  value={filterText} onChange={(e) => setFilterText(e.target.value)}
+                  placeholder="Найти слово..." autoCapitalize="off" autoCorrect="off"
+                  style={{ border: "none", background: "transparent", outline: "none", fontSize: 14, flex: 1, color: C.ink }}
+                />
+              </div>
+            )}
+
+            <div className="flex flex-col gap-1">
+              {filtered.map((w) => {
+                const hasDetail = (w.forms && w.forms.length) || w.note || w.extra || w.example || w.cases;
+                return (
+                  <div key={w.id} className="flex items-center" style={{ padding: "13px 2px", borderBottom: `1px solid ${C.line}` }}>
+                    <button
+                      onClick={() => hasDetail && onOpenDetail(w)}
+                      className="press flex-1 flex items-center justify-between"
+                      style={{ background: "none", border: "none", textAlign: "left" }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="disp" style={{ fontWeight: 600, fontSize: 16, color: C.spruceDeep }}>{w.fi}</span>
+                        <span className="mono" style={{ fontSize: 10, color: col.main, border: `1px solid ${col.main}55`, borderRadius: 6, padding: "1px 6px" }}>{w.pos}</span>
+                        {hasDetail && <BookMarked size={13} color={C.mist} />}
+                      </div>
+                      <span style={{ fontSize: 14, color: C.mist }}>{w.ru}</span>
+                    </button>
+                    <button onClick={(e) => { e.stopPropagation(); speakFi(w.fi); }} className="press" style={{ background: "none", border: "none", color: C.lake, padding: "4px 4px 4px 10px" }}>
+                      <Volume2 size={16} />
+                    </button>
+                    {isCustom && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleDeleteClick(w.id); }} className="press"
+                        style={{ background: "none", border: "none", color: armedDelete === w.id ? C.berry : C.mist, padding: 5 }}
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+              {filtered.length === 0 && (
+                <div style={{ fontSize: 13, color: C.mist, padding: "12px 2px" }}>Ничего не найдено.</div>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function cardBtnStyle(col) {
+  return {
+    background: col ? col.tint : C.paperDeep, border: `1px solid ${C.line}`, borderRadius: 17, padding: "17px 18px",
+    display: "flex", alignItems: "center", justifyContent: "space-between", textAlign: "left",
+  };
+}
+
+/* ===========================================================
+   КАРТОЧКИ — со свайпом, боковой озвучкой и «словарной» обраткой
+=========================================================== */
+function FlashcardSession({ words, topic, group, onProgress, onFinish, onExit, onOpenDetail }) {
+  const [idx, setIdx] = useState(0);
+  const [flipped, setFlipped] = useState(false);
+  const [known, setKnown] = useState(0);
+  const [learning, setLearning] = useState(0);
+  const [learningList, setLearningList] = useState([]);
+  const [dragX, setDragX] = useState(0);
+  const [dragging, setDragging] = useState(false);
+  const startRef = useRef(null);
+  const col = groupColor(group);
+
+  if (!words.length) return null;
+  const w = words[idx];
+  const threshold = 90;
+
+  function answer(knowsIt) {
+    onProgress(w.id, knowsIt);
+    const nk = known + (knowsIt ? 1 : 0);
+    const nl = learning + (knowsIt ? 0 : 1);
+    const nList = knowsIt ? learningList : [...learningList, w];
+    setKnown(nk); setLearning(nl); setLearningList(nList);
+    setFlipped(false); setDragX(0); setDragging(false); startRef.current = null;
+    if (idx + 1 < words.length) setIdx((n) => n + 1);
+    else onFinish({ known: nk, learning: nl, total: words.length, learningList: nList });
+  }
+
+  function onTouchStart(e) {
+    e.stopPropagation();
+    const t = e.touches[0];
+    startRef.current = { x: t.clientX, y: t.clientY };
+    setDragging(true);
+  }
+  function onTouchMove(e) {
+    if (!startRef.current) return;
+    e.stopPropagation();
+    const t = e.touches[0];
+    const dx = t.clientX - startRef.current.x;
+    const dy = t.clientY - startRef.current.y;
+    if (Math.abs(dx) > Math.abs(dy)) setDragX(dx);
+  }
+  function onTouchEndCard(e) {
+    if (!startRef.current) return;
+    e.stopPropagation();
+    const t = e.changedTouches[0];
+    const dx = t.clientX - startRef.current.x;
+    const dy = t.clientY - startRef.current.y;
+    const horizontal = Math.abs(dx) > Math.abs(dy);
+    if (horizontal && Math.abs(dx) > threshold) { e.preventDefault(); answer(dx > 0); return; }
+    if (Math.abs(dx) < 10 && Math.abs(dy) < 10) { e.preventDefault(); setFlipped((f) => !f); }
+    setDragX(0); setDragging(false); startRef.current = null;
+  }
+
+  const knowOpacity = Math.min(Math.max(dragX, 0) / threshold, 1);
+  const noOpacity = Math.min(Math.max(-dragX, 0) / threshold, 1);
+  const hasFullDetail = (w.forms && w.forms.length) || w.example || w.note || w.extra || w.cases;
+
+  return (
+    <div className="pt-8">
+      <div className="flex items-center justify-between">
+        <BackButton onClick={onExit} label={topic.ru} />
+        <span className="mono" style={{ fontSize: 13, color: C.mist }}>{idx + 1}/{words.length}</span>
+      </div>
+      <div style={{ height: 5, borderRadius: 3, background: C.line, marginTop: 16, overflow: "hidden" }}>
+        <div style={{ width: `${(idx / words.length) * 100}%`, height: "100%", background: col.main, transition: "width .3s" }} />
+      </div>
+
+      <div style={{ marginTop: 30, position: "relative", paddingRight: 22 }}>
+        <div style={{ perspective: 1200, position: "relative" }}>
+          <div style={{
+            position: "absolute", top: 16, left: 16, zIndex: 3, padding: "6px 12px", borderRadius: 10,
+            background: C.berry, color: C.paper, fontWeight: 700, fontSize: 13, opacity: noOpacity,
+            transform: "rotate(-8deg)", pointerEvents: "none",
+          }}>НЕ ЗНАЮ</div>
+          <div style={{
+            position: "absolute", top: 16, right: 16, zIndex: 3, padding: "6px 12px", borderRadius: 10,
+            background: col.main, color: C.paper, fontWeight: 700, fontSize: 13, opacity: knowOpacity,
+            transform: "rotate(8deg)", pointerEvents: "none",
+          }}>ЗНАЮ</div>
+
+          <div
+            onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEndCard}
+            onClick={() => setFlipped((f) => !f)}
+            className={`flip-inner ${flipped ? "flipped" : ""} press`}
+            style={{
+              position: "relative", minHeight: hasFullDetail ? 340 : 260,
+              transform: `${flipped ? "rotateY(180deg) " : ""}translateX(${dragX}px) rotate(${dragX / 22}deg)`,
+              transition: dragging ? "none" : undefined,
+            }}
+          >
+            <div className="flip-face" style={{
+              position: "absolute", inset: 0, borderRadius: 24, background: C.paper, border: `1px solid ${C.line}`,
+              display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 22, cursor: "pointer",
+            }}>
+              <span className="mono" style={{ fontSize: 12, color: C.mist, textTransform: "uppercase", letterSpacing: 1, marginBottom: 16 }}>Suomeksi</span>
+              <div className="disp" style={{ fontSize: 33, fontWeight: 700, color: C.spruceDeep, textAlign: "center" }}>{w.fi}</div>
+              <span className="mono" style={{ fontSize: 11, color: C.mist, marginTop: 10, border: `1px solid ${C.line}`, borderRadius: 8, padding: "2px 8px" }}>{w.pos}</span>
+              <span style={{ fontSize: 13, color: C.mist, marginTop: 18, textAlign: "center" }}>нажмите — перевернуть · свайп — ответ</span>
+            </div>
+            <div className="flip-face flip-back" style={{
+              position: "absolute", inset: 0, borderRadius: 24, background: col.main, border: `1px solid ${col.deep}`,
+              display: "flex", flexDirection: "column", alignItems: "center", padding: "24px 22px", cursor: "pointer", overflow: "auto",
+            }}>
+              <span className="mono" style={{ fontSize: 12, color: "#EAF1EC", textTransform: "uppercase", letterSpacing: 1, marginBottom: 12 }}>По-русски</span>
+              <div className="disp" style={{ fontSize: 25, fontWeight: 700, color: C.paper, textAlign: "center" }}>{w.ru}</div>
+              <span className="mono" style={{ fontSize: 11, color: C.paper, marginTop: 8, border: "1px solid rgba(255,255,255,0.4)", borderRadius: 8, padding: "2px 8px" }}>{w.pos}</span>
+
+              {w.forms && w.forms.length > 0 && (
+                <div style={{ marginTop: 16, width: "100%", maxWidth: 250, borderTop: "1px solid rgba(255,255,255,0.25)", paddingTop: 12 }}>
+                  {w.forms.map((f, i) => (
+                    <div key={i} className="flex justify-between" style={{ fontSize: 13, padding: "4px 0", color: "#EAF1EC" }}>
+                      <span>{f.label}</span>
+                      <span className="mono" style={{ fontWeight: 700, color: C.paper }}>{f.value}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {w.example && (
+                <div className="rounded-xl mt-3 w-full" style={{ maxWidth: 250, background: "rgba(255,255,255,0.14)", padding: "10px 12px" }}>
+                  <div className="flex items-center gap-1.5 mb-1" style={{ color: "#EAF1EC" }}>
+                    <Quote size={12} />
+                    <span style={{ fontSize: 10.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.4 }}>Пример</span>
+                  </div>
+                  <div style={{ fontSize: 13, fontStyle: "italic", color: C.paper }}>{w.example.fi}</div>
+                  <div style={{ fontSize: 12, color: "#EAF1EC", marginTop: 2 }}>{w.example.ru}</div>
+                </div>
+              )}
+
+              {w.note && (
+                <div className="flex items-start gap-1.5 mt-3" style={{ maxWidth: 250, color: "#EAF1EC" }}>
+                  <Info size={12} style={{ marginTop: 2, flexShrink: 0 }} />
+                  <span style={{ fontSize: 12.5, textAlign: "left" }}>{w.note}</span>
+                </div>
+              )}
+              {w.extra && <div style={{ fontSize: 12, color: "#EAF1EC", marginTop: 10, textAlign: "center", maxWidth: 250, whiteSpace: "pre-wrap" }}>{w.extra}</div>}
+
+              {w.cases && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); onOpenDetail(w); }}
+                  className="press flex items-center gap-1.5 mt-4"
+                  style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.4)", borderRadius: 12, padding: "8px 14px", color: C.paper, fontSize: 12.5, fontWeight: 700 }}
+                >
+                  <BookMarked size={13} /> Все падежи слова
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <button
+          onClick={(e) => { e.stopPropagation(); speakFi(w.fi); }}
+          className="press"
+          style={{
+            position: "absolute", top: "50%", right: 0, transform: "translateY(-50%)", zIndex: 4,
+            width: 44, height: 44, borderRadius: "50%", background: C.paper, border: `2px solid ${col.main}`,
+            boxShadow: "0 2px 8px rgba(24,32,24,0.18)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}
+        >
+          <Volume2 size={19} color={col.main} />
+        </button>
+      </div>
+
+      <div className="flex gap-3 mt-9">
+        <button onClick={() => answer(false)} className="press" style={{
+          flex: 1, padding: "17px 0", borderRadius: 17, background: "transparent", border: `1.5px solid ${C.berry}`,
+          color: C.berry, fontWeight: 700, fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center", gap: 9,
+        }}><X size={19} /> Не знаю</button>
+        <button onClick={() => answer(true)} className="press" style={{
+          flex: 1, padding: "17px 0", borderRadius: 17, background: col.main, border: `1.5px solid ${col.deep}`,
+          color: C.paper, fontWeight: 700, fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center", gap: 9,
+        }}><Check size={19} /> Знаю</button>
+      </div>
+    </div>
+  );
+}
+
+/* ===========================================================
+   ТЕСТ (выбор варианта)
+=========================================================== */
+function QuizSession({ words, topic, group, pool, onProgress, onFinish, onExit }) {
+  const [idx, setIdx] = useState(0);
+  const [options, setOptions] = useState([]);
+  const [selected, setSelected] = useState(null);
+  const [correct, setCorrect] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [best, setBest] = useState(0);
+  const col = groupColor(group);
+
+  useEffect(() => { buildQuestion(0); /* eslint-disable-next-line */ }, []);
+
+  function buildQuestion(i) {
+    const q = words[i];
+    const others = pool.filter((w) => w.id !== q.id);
+    const distractors = shuffle(others).slice(0, 3);
+    setOptions(shuffle([q, ...distractors]));
+    setSelected(null);
+  }
+
+  if (!words.length || !words[idx]) return null;
+  const question = words[idx];
+
+  function pick(opt) {
+    if (selected) return;
+    const isRight = opt.id === question.id;
+    setSelected(opt.id);
+    onProgress(question.id, isRight);
+    if (isRight) { setCorrect((n) => n + 1); setStreak((s) => { const ns = s + 1; setBest((b) => Math.max(b, ns)); return ns; }); }
+    else setStreak(0);
+  }
+
+  function next() {
+    if (idx + 1 < words.length) { const ni = idx + 1; setIdx(ni); buildQuestion(ni); }
+    else onFinish({ correct, total: words.length, best });
+  }
+
+  return (
+    <div className="pt-8">
+      <div className="flex items-center justify-between">
+        <BackButton onClick={onExit} label={topic.ru} />
+        <div className="flex items-center gap-3">
+          {streak > 1 && <span className="mono flex items-center gap-1" style={{ fontSize: 13, color: C.amber }}><Flame size={15} /> {streak}</span>}
+          <span className="mono" style={{ fontSize: 13, color: C.mist }}>{idx + 1}/{words.length}</span>
+        </div>
+      </div>
+      <div style={{ height: 5, borderRadius: 3, background: C.line, marginTop: 16, overflow: "hidden" }}>
+        <div style={{ width: `${(idx / words.length) * 100}%`, height: "100%", background: col.main, transition: "width .3s" }} />
+      </div>
+
+      <div className="mt-10 mb-4 text-center">
+        <span className="mono" style={{ fontSize: 12, color: C.mist, textTransform: "uppercase", letterSpacing: 1 }}>Как переводится</span>
+        <div className="flex items-center justify-center gap-2" style={{ marginTop: 9 }}>
+          <div className="disp" style={{ fontSize: 30, fontWeight: 700, color: C.spruceDeep }}>{question.fi}</div>
+          <button onClick={() => speakFi(question.fi)} className="press" style={{ background: "none", border: "none", color: col.main, padding: 4 }}>
+            <Volume2 size={20} />
+          </button>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-3 mt-4">
+        {options.map((opt) => {
+          const isCorrect = opt.id === question.id;
+          const isSelected = selected === opt.id;
+          let bg = C.paperDeep, border = C.line, color = C.ink;
+          if (selected) {
+            if (isCorrect) { bg = col.main; border = col.deep; color = C.paper; }
+            else if (isSelected) { bg = C.berry; border = C.berry; color = C.paper; }
+          }
+          return (
+            <button key={opt.id} onClick={() => pick(opt)} className="press" disabled={!!selected} style={{
+              padding: "17px 18px", borderRadius: 15, background: bg, border: `1.5px solid ${border}`, color,
+              fontSize: 16, fontWeight: 600, textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center",
+            }}>
+              {opt.ru}
+              {selected && isCorrect && <Check size={19} />}
+              {selected && isSelected && !isCorrect && <X size={19} />}
+            </button>
+          );
+        })}
+      </div>
+
+      {selected && (
+        <button onClick={next} className="press" style={{
+          marginTop: 24, width: "100%", padding: "17px 0", borderRadius: 17, background: C.spruceDeep,
+          color: C.paper, fontWeight: 700, fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center", gap: 9,
+        }}>{idx + 1 < words.length ? "Далее" : "Завершить"} <ChevronRight size={17} /></button>
+      )}
+    </div>
+  );
+}
+
+/* ===========================================================
+   ПРАВОПИСАНИЕ
+=========================================================== */
+function SpellingSession({ words, topic, group, onProgress, onFinish, onExit }) {
+  const [idx, setIdx] = useState(0);
+  const [value, setValue] = useState("");
+  const [result, setResult] = useState(null);
+  const [correct, setCorrect] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [best, setBest] = useState(0);
+  const inputRef = useRef(null);
+  const col = groupColor(group);
+
+  useEffect(() => { inputRef.current && inputRef.current.focus(); }, [idx]);
+
+  if (!words.length) return null;
+  const w = words[idx];
+
+  function submit() {
+    if (result || !value.trim()) return;
+    const exact = normalize(value) === normalize(w.fi);
+    const loose = normalizeLoose(value) === normalizeLoose(w.fi);
+    const status = exact ? "correct" : loose ? "almost" : "wrong";
+    setResult(status);
+    const isRight = status === "correct";
+    onProgress(w.id, isRight);
+    if (isRight) { setCorrect((n) => n + 1); setStreak((s) => { const ns = s + 1; setBest((b) => Math.max(b, ns)); return ns; }); }
+    else setStreak(0);
+  }
+
+  function next() {
+    setValue(""); setResult(null);
+    if (idx + 1 < words.length) setIdx((n) => n + 1);
+    else onFinish({ correct, total: words.length, best });
+  }
+
+  const boxColor = result === "correct" ? col.main : result === "wrong" ? C.berry : result === "almost" ? C.amber : C.line;
+
+  return (
+    <div className="pt-8">
+      <div className="flex items-center justify-between">
+        <BackButton onClick={onExit} label={topic.ru} />
+        <div className="flex items-center gap-3">
+          {streak > 1 && <span className="mono flex items-center gap-1" style={{ fontSize: 13, color: C.amber }}><Flame size={15} /> {streak}</span>}
+          <span className="mono" style={{ fontSize: 13, color: C.mist }}>{idx + 1}/{words.length}</span>
+        </div>
+      </div>
+      <div style={{ height: 5, borderRadius: 3, background: C.line, marginTop: 16, overflow: "hidden" }}>
+        <div style={{ width: `${(idx / words.length) * 100}%`, height: "100%", background: col.main, transition: "width .3s" }} />
+      </div>
+
+      <div className="mt-10 mb-7 text-center">
+        <span className="mono" style={{ fontSize: 12, color: C.mist, textTransform: "uppercase", letterSpacing: 1 }}>Напишите по-фински</span>
+        <div className="disp" style={{ fontSize: 30, fontWeight: 700, color: C.spruceDeep, marginTop: 9 }}>{w.ru}</div>
+      </div>
+
+      <input
+        ref={inputRef} value={value} onChange={(e) => setValue(e.target.value)}
+        onKeyDown={(e) => { if (e.key === "Enter") (result ? next() : submit()); }}
+        disabled={!!result} autoCapitalize="off" autoCorrect="off" spellCheck="false"
+        placeholder="напишите слово..."
+        style={{
+          width: "100%", padding: "18px 20px", borderRadius: 17, fontSize: 19, textAlign: "center",
+          border: `2px solid ${boxColor}`, background: C.paper, color: C.ink,
+        }}
+      />
+
+      {result && (
+        <div className="text-center mt-5">
+          <div style={{ color: result === "correct" ? col.main : result === "almost" ? C.amber : C.berry, fontSize: 14, fontWeight: 700 }}>
+            {result === "correct" && "Верно!"}
+            {result === "almost" && "Почти! Обратите внимание на ä / ö"}
+            {result === "wrong" && "Не совсем"}
+          </div>
+          <div className="flex items-center justify-center gap-2 mt-2">
+            <div className="mono" style={{ color: C.ink, fontWeight: 700, fontSize: 17 }}>{w.fi}</div>
+            <button onClick={() => speakFi(w.fi)} className="press" style={{ background: "none", border: "none", color: col.main, padding: 4 }}>
+              <Volume2 size={17} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      <button onClick={result ? next : submit} className="press w-full mt-7" style={{
+        padding: "17px 0", borderRadius: 17,
+        background: result ? C.spruceDeep : col.main, color: C.paper, fontWeight: 700, fontSize: 15,
+      }}>
+        {result ? (idx + 1 < words.length ? "Далее" : "Завершить") : "Проверить"}
+      </button>
+    </div>
+  );
+}
+
+/* ===========================================================
+   ИТОГИ
+=========================================================== */
+function SummaryScreen({ topic, group, stats, liveStats, onHome, onRepeat, onRepeatLearning }) {
+  const col = groupColor(group);
+  const hasLearning = stats.mode === "flashcards" && stats.learningList && stats.learningList.length > 0;
+  return (
+    <div className="pt-14 flex flex-col items-center text-center">
+      <div style={{ width: 78, height: 78, borderRadius: "50%", background: C.amber,
+        display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
+        <Trees size={32} color={C.paper} />
+      </div>
+      <div className="disp" style={{ fontSize: 28, fontWeight: 700, color: C.spruceDeep }}>Привал пройден</div>
+      <div style={{ fontSize: 15, color: C.mist, marginTop: 5 }}>{topic?.ru}</div>
+
+      <div className="flex items-center gap-2 rounded-2xl px-5 py-2.5 mt-5" style={{ background: C.lake, border: `1px solid ${C.lakeDeep}` }}>
+        <Zap size={17} color={C.paper} />
+        <span style={{ color: C.paper, fontWeight: 800, fontSize: 16 }}>+{stats.earnedXp} XP</span>
+      </div>
+      <div className="flex items-center gap-1.5 mt-2" style={{ color: C.mist, fontSize: 13 }}>
+        <Flame size={14} color={C.amber} /> Серия: {liveStats.streak} {liveStats.streak === 1 ? "день" : "дней"} подряд
+      </div>
+
+      <div className="w-full mt-7 rounded-2xl" style={{ background: C.paperDeep, border: `1px solid ${C.line}`, padding: 22 }}>
+        {stats.mode === "flashcards" ? (
+          <div className="flex justify-around">
+            <Stat label="Знаю" value={stats.known} color={col.main} />
+            <Stat label="Учу дальше" value={stats.learning} color={C.berry} />
+          </div>
+        ) : (
+          <div className="flex justify-around">
+            <Stat label="Верно" value={`${stats.correct}/${stats.total}`} color={col.main} />
+            <Stat label="Лучшая серия" value={stats.best} icon={<Flame size={15} color={C.amber} />} />
+          </div>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-3 w-full mt-9">
+        {hasLearning && (
+          <button onClick={() => onRepeatLearning(stats.learningList)} className="press" style={{
+            padding: "17px 0", borderRadius: 17, background: "transparent", border: `1.5px solid ${C.berry}`,
+            color: C.berry, fontWeight: 700, fontSize: 15,
+          }}>
+            Повторить незнакомые ({stats.learningList.length})
+          </button>
+        )}
+        <button onClick={onRepeat} className="press" style={{ padding: "17px 0", borderRadius: 17, background: col.main, color: C.paper, fontWeight: 700, fontSize: 15 }}>
+          {hasLearning ? "Повторить всю тему" : "Повторить ещё раз"}
+        </button>
+        <button onClick={onHome} className="press" style={{ padding: "17px 0", borderRadius: 17, background: "transparent", border: `1.5px solid ${C.line}`, color: C.ink, fontWeight: 600, fontSize: 15 }}>
+          На тропу
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function Stat({ label, value, color, icon }) {
+  return (
+    <div>
+      <div className="mono flex items-center justify-center gap-1" style={{ fontSize: 24, fontWeight: 700, color: color || C.spruceDeep }}>{icon}{value}</div>
+      <div style={{ fontSize: 12, color: C.mist, marginTop: 3 }}>{label}</div>
+    </div>
+  );
+}
+
+function BackButton({ onClick, label }) {
+  return (
+    <button onClick={onClick} className="press flex items-center gap-1" style={{ background: "none", border: "none", color: C.mist, fontSize: 14, padding: 6 }}>
+      <ArrowLeft size={16} /> {label}
+    </button>
+  );
+}
+
+import { createRoot } from "react-dom/client";
+createRoot(document.getElementById("root")).render(<SuomenPolku />);
+</script>
+</body>
+</html>
