@@ -11,7 +11,11 @@ function ScrollNavigation({ currentSection, setCurrentSection, totalSections }) 
             sections[index].scrollIntoView({ behavior: "smooth" });
         };
 
+        // Пока открыто всплывающее окно (сертификаты), листание секций отключено
+        const isPopupOpen = () => Boolean(document.querySelector(".popup"));
+
         const handleScroll = (e) => {
+            if (isPopupOpen()) return;
             if (isThrottled) return;
             isThrottled = true;
 
@@ -27,6 +31,7 @@ function ScrollNavigation({ currentSection, setCurrentSection, totalSections }) 
         };
 
         const handleKeyDown = (e) => {
+            if (isPopupOpen()) return;
             if (isThrottled) return;
             const key = e.key.toLowerCase();
 
