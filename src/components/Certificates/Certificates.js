@@ -6,7 +6,7 @@ import "./Certificates.scss";
 const filesContext = require.context(
     "../../certificates",
     false,
-    /\.(jpe?g|png|webp|gif|pdf)$/i
+    /\.(jpe?g|png|webp|avif|gif|bmp|pdf)$/i
 );
 
 const getUrl = (key) => {
