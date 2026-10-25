@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Popup from "../Popup/Popup";
+import Certificates from "../Certificates/Certificates";
 import "./Experience.scss";
 import Masonry from 'react-masonry-css';
 
@@ -48,9 +49,20 @@ function Experience() {
                         <h3>С любовью - до сих пор</h3>
                         <p>Каждое 1 сентября волнуюсь, как в первый раз. Люблю свою работу и детей — именно это даёт силы каждый день.</p>
                     </div>
-                    <div className="experience__card experience__card--popup" onClick={() => setIsPopupOpen(true)}>
+                    <div
+                        className="experience__card experience__card--popup"
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => setIsPopupOpen(true)}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                                e.preventDefault();
+                                setIsPopupOpen(true);
+                            }
+                        }}
+                    >
                         <h3>Мои сертификаты тут →</h3>
-                        <img src={Folder} alt="Folder" className="experience__folder-icon"/>
+                        <img src={Folder} alt="" className="experience__folder-icon"/>
                     </div>
                 </Masonry>
             </div>
@@ -61,12 +73,8 @@ function Experience() {
             <img src={Shape_Blue} alt="Shape_Blue" className="decor decor--shape_blue" />
             <img src={Squiggly_Yellow} alt="Squiggly_Yellow" className="decor decor--squiggly_yellow" />
 
-            <Popup isOpen={isPopupOpen} onClose={() => setIsPopupOpen(false)} title="Сертификаты и грамоты">
-                <ul>
-                    <li><a href="/certificates/cert1.pdf" target="_blank">Сертификат 1</a></li>
-                    <li><a href="/certificates/cert2.pdf" target="_blank">Сертификат 2</a></li>
-                    {/* Добавь свои файлы */}
-                </ul>
+            <Popup isOpen={isPopupOpen} onClose={() => setIsPopupOpen(false)} title="Сертификаты и грамоты" wide>
+                <Certificates />
             </Popup>
         </section>
     );

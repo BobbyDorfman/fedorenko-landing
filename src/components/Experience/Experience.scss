@@ -153,56 +153,7 @@
     }
 }
 
-// Попап
-.popup {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    &__content {
-        background: #fff;
-        padding: 30px;
-        border-radius: 20px;
-        max-width: 500px;
-        width: 90%;
-        position: relative;
-
-        h3 {
-        margin-top: 0;
-        }
-
-        .popup__list {
-        margin-top: 20px;
-        list-style: none;
-        padding: 0;
-
-        li {
-            margin-bottom: 10px;
-        }
-
-        a {
-            color: #000;
-            text-decoration: underline;
-        }
-        }
-    }
-
-    &__close {
-        position: absolute;
-        top: 10px;
-        right: 15px;
-        font-size: 24px;
-        background: none;
-        border: none;
-        cursor: pointer;
-    }
-}
+// Стили окна (попапа) лежат в components/Popup/Popup.scss
 
 @media screen and (max-width: 768px) {
     .experience__grid {
