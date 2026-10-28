@@ -127,13 +127,14 @@
     }
 
     // Телефон и планшет в вертикальном положении (до 900px): всё в одну колонку
+    // (отступы сверху и снизу раздела — в src/styles/global.scss)
     @media (max-width: 900px) {
         .about__content {
             flex-direction: column;
             flex-wrap: nowrap;
             align-items: center;
-            gap: 56px;
-            padding: 84px 20px 56px;
+            gap: 48px;
+            padding: 0 20px;
         }
 
         .about__box {
@@ -159,11 +160,30 @@
             font-size: clamp(18px, 4.5vw, 28px);
         }
 
+        // Фото крупнее; за ним оранжевая «подложка» в стиле сайта (рамка и скругление)
         .about__photo-wrapper {
             flex: 0 0 auto;
-            width: min(62%, 320px);
+            width: min(82%, 380px);
             max-width: none;
             aspect-ratio: 451.4 / 481.4;
+
+            &::before {
+                content: "";
+                position: absolute;
+                inset: 5% -7% -7% 7%;
+                background-color: #f26522;
+                border: 2px solid #000;
+                border-radius: 28px;
+                transform: rotate(-9deg);
+                z-index: 0;
+            }
+        }
+
+        .about__photo {
+            position: relative;
+            z-index: 1;
+            border: 3px solid #000;
+            border-radius: 22px;
         }
 
         .decor--pen {
@@ -176,10 +196,11 @@
             width: clamp(90px, 26vw, 160px);
         }
 
+        // Звезда крупнее
         .decor--star {
-            width: clamp(44px, 12vw, 80px);
-            top: -12%;
-            right: 82%;
+            width: clamp(84px, 26vw, 140px);
+            top: -14%;
+            right: 74%;
         }
     }
 
