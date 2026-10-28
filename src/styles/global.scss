@@ -7,6 +7,32 @@
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
+  background-color: #fffbe0; // цвет первого раздела: за краями страницы нет белого
+}
+
+// Единые отступы сверху и снизу у всех разделов (телефон и планшет).
+// Менять отступы между разделами нужно только здесь.
+:root {
+  --section-pad-top: 60px;    // сверху больше: там кнопка меню
+  --section-pad-bottom: 44px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --section-pad-top: 84px;
+    --section-pad-bottom: 60px;
+  }
+}
+
+@media not all and (min-width: 1025px) and (hover: hover) {
+  .about,
+  .about-me,
+  .experience,
+  .success {
+    min-height: 0;
+    padding-top: var(--section-pad-top);
+    padding-bottom: var(--section-pad-bottom);
+  }
 }
 
 body {
