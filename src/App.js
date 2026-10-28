@@ -10,20 +10,22 @@ import Success from "./components/Success/Success";
 import ScrollIndicator from "./components/ScrollIndicator/ScrollIndicator"; // точечная навигацию (dot navigation)
 import ScrollNavigation from "./components/ScrollNavigation/ScrollNavigation";
 import useScrollToSection from "./hooks/useScrollToSection"; 
+import useThemeColor from "./hooks/useThemeColor";
 import "./App.scss";
 
 function App() {
     const [currentSection, setCurrentSection] = useState(0);
     const scrollToSection = useScrollToSection(setCurrentSection); // используем хук useScrollToSection
+    useThemeColor(); // цвет верхней строки браузера на телефоне = цвет текущего раздела
 
     return (
         <div className="app">
         <BurgerMenu scrollToSection={scrollToSection} currentSection={currentSection} />
         <main>
-            <SlideSection id="about"><About /></SlideSection>
-            <SlideSection id="about-me"><AboutMe /></SlideSection>
-            <SlideSection id="experience"><Experience /></SlideSection>
-            <SlideSection id="success"><Success /></SlideSection>
+            <SlideSection id="about" color="#fffbe0"><About /></SlideSection>
+            <SlideSection id="about-me" color="#fa682f"><AboutMe /></SlideSection>
+            <SlideSection id="experience" color="#43b069"><Experience /></SlideSection>
+            <SlideSection id="success" color="#fffbe0"><Success /></SlideSection>
             {/* <SlideSection id="reviews"><Reviews /></SlideSection> */}
             {/* <SlideSection id="contact"><Contact /></SlideSection> */}
         </main>
