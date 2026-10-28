@@ -1,18 +1,28 @@
+// Телефоны и планшеты: раздел не меньше высоты экрана, но может быть выше —
+// тогда страница просто прокручивается.
 .slide-section {
-  height: 100vh; // занимать 100% высоты окна
+  min-height: 100vh;
+  min-height: 100dvh; // dvh учитывает адресную строку браузера на телефоне
   scroll-snap-align: start;
   display: flex;
   justify-content: center;
   align-items: center;
-//   padding: 40px;
   box-sizing: border-box;
 
   opacity: 0;
-  transform: translateY(50px);
-  transition: opacity 0.4s ease, transform 0.4s ease;
+  transition: opacity 0.4s ease;
 
   &.visible {
     opacity: 1;
-    // transform: translateY(0);
+  }
+}
+
+// Ноутбуки и компьютеры: каждый раздел ровно на весь экран (как было раньше)
+@media (min-width: 1025px) and (hover: hover) {
+  .slide-section {
+    height: 100vh;
+    min-height: 0;
+    transform: translateY(50px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
   }
 }

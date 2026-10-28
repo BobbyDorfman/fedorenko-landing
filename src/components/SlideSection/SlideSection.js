@@ -12,7 +12,8 @@ function SlideSection({ id, children }) {
         ([entry]) => {
             setIsVisible(entry.isIntersecting);
         },
-        { threshold: 0.6 }
+        // Раздел на телефоне может быть выше экрана, поэтому порог небольшой
+        { threshold: 0.15 }
         );
 
         if (section) observer.observe(section);
