@@ -4,14 +4,21 @@
   box-sizing: border-box;
 }
 
-body, html, #root {
-  height: 100%;
-  font-family: sans-serif;
+html {
   scroll-behavior: smooth;
-  scroll-snap-type: y mandatory;
-//   overflow: hidden;
+  -webkit-text-size-adjust: 100%;
 }
 
-main > div {
-  scroll-snap-align: start;
+body {
+  font-family: sans-serif;
+  overflow-x: hidden;
+}
+
+// Ноутбуки и компьютеры: экран за экраном (колесо мыши, стрелки).
+// Условие совпадает с SNAP_QUERY в src/hooks/useMediaQuery.js
+@media (min-width: 1025px) and (hover: hover) {
+  body, html, #root {
+    height: 100%;
+    scroll-snap-type: y mandatory;
+  }
 }
