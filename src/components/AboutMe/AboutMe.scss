@@ -154,8 +154,6 @@
 
     // Телефон и планшет в вертикальном положении (до 900px): фото сверху, текст под ним
     @media (max-width: 900px) {
-        padding: 80px 0 40px;
-
         .about-me__box {
             flex: 0 0 auto;
             width: calc(100% - 32px);
