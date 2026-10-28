@@ -55,11 +55,18 @@ function BurgerMenu({ scrollToSection, currentSection }) {
 
     return (
         <div className="burger-menu">
-            <div className="burger-menu__icon" onClick={toggleMenu} ref={iconRef}>
-                <div className="burger-menu__line" />
-                <div className="burger-menu__line" />
-                <div className="burger-menu__line" />
-            </div>
+            <button
+                type="button"
+                className="burger-menu__icon"
+                onClick={toggleMenu}
+                ref={iconRef}
+                aria-label="Меню"
+                aria-expanded={open}
+            >
+                <span className="burger-menu__line" />
+                <span className="burger-menu__line" />
+                <span className="burger-menu__line" />
+            </button>
             {open && (
                 <nav className="burger-menu__nav" ref={menuRef}>
                     <ul>

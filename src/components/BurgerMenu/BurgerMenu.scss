@@ -4,10 +4,18 @@
     left: 20px;
     z-index: 1000;
 
+    // На телефоне и планшете кнопка ближе к краю
+    @media (max-width: 1024px) {
+        top: 12px;
+        left: 12px;
+    }
+
     &__icon {
-        width: 40px;
-        height: 40px;
+        width: 44px;  // не меньше 44px — удобно попадать пальцем
+        height: 44px;
+        padding: 0;
         background: #fff;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
         border-radius: 50%;
         border: 1px solid #ccc;
         display: flex;
@@ -17,6 +25,7 @@
         cursor: pointer;
 
         .burger-menu__line {
+        display: block;
         width: 20px;
         height: 2px;
         background: #000;
@@ -26,7 +35,7 @@
 
     &__nav {
         position: absolute;
-        top: 50px;
+        top: 54px;
         background: #fff;
         border: 1px solid #ccc;
         padding: 10px;
@@ -38,8 +47,8 @@
         padding: 0;
 
         li {
-            margin-bottom: 10px;
-            padding: 5px 10px;
+            margin-bottom: 6px;
+            padding: 10px 14px;
             border-radius: 4px;
             font-weight: bold;
             cursor: pointer;
