@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import "./SlideSection.scss";
 
-function SlideSection({ id, children }) {
+function SlideSection({ id, color, children }) {
     const ref = useRef();
     const [isVisible, setIsVisible] = useState(false);
 
@@ -24,7 +24,12 @@ function SlideSection({ id, children }) {
     }, []);
 
     return (
-        <section id={id} ref={ref} className={`slide-section ${isVisible ? "visible" : ""}`}>
+        <section
+            id={id}
+            ref={ref}
+            data-color={color}
+            className={`slide-section ${isVisible ? "visible" : ""}`}
+        >
         {children}
         </section>
     );

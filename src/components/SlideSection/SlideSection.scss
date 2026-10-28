@@ -1,28 +1,24 @@
-// Телефоны и планшеты: раздел не меньше высоты экрана, но может быть выше —
-// тогда страница просто прокручивается.
+// Телефоны и планшеты: раздел занимает ровно столько места, сколько нужно содержимому.
+// Отступы сверху и снизу у всех разделов одинаковые (см. src/styles/global.scss),
+// а затухания нет, чтобы при прокрутке не мелькали белые полосы между разделами.
 .slide-section {
-  min-height: 100vh;
-  min-height: 100dvh; // dvh учитывает адресную строку браузера на телефоне
-  scroll-snap-align: start;
   display: flex;
   justify-content: center;
   align-items: center;
   box-sizing: border-box;
-
-  opacity: 0;
-  transition: opacity 0.4s ease;
-
-  &.visible {
-    opacity: 1;
-  }
+  scroll-snap-align: start;
 }
 
-// Ноутбуки и компьютеры: каждый раздел ровно на весь экран (как было раньше)
+// Ноутбуки и компьютеры: каждый раздел ровно на весь экран, плавное появление (как было раньше)
 @media (min-width: 1025px) and (hover: hover) {
   .slide-section {
     height: 100vh;
-    min-height: 0;
+    opacity: 0;
     transform: translateY(50px);
     transition: opacity 0.4s ease, transform 0.4s ease;
+
+    &.visible {
+      opacity: 1;
+    }
   }
 }
