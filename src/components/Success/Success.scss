@@ -114,11 +114,9 @@
     }
 }
 
-// Телефоны и планшеты: раздел растягивается на весь экран (цвет фона без белых полос)
+// Телефоны и планшеты: отступы сверху и снизу — в src/styles/global.scss (одинаковые для всех разделов)
 @media not all and (min-width: 1025px) and (hover: hover) {
     .success {
-        min-height: 100vh;
-        min-height: 100dvh;
         align-items: center;
     }
 }
@@ -193,8 +191,6 @@
 // Телефон (до 767px): карточки показываются слайдером (см. CardSlider)
 @media (max-width: 767px) {
     .success {
-        padding: 72px 0 36px;
-
         &__box {
             width: 100%;
         }
