@@ -152,23 +152,78 @@
         }
     }
 
-    @media (max-width: 768px) {
-        .about-me__content {
-            flex-direction: column;
-            align-items: center;
-        }
+    // Телефон и планшет в вертикальном положении (до 900px): фото сверху, текст под ним
+    @media (max-width: 900px) {
+        padding: 80px 0 40px;
 
-        .about-me__box,
-        .about-me__photo-wrapper {
-            flex: 1 1 100%;
+        .about-me__box {
+            flex: 0 0 auto;
+            width: calc(100% - 32px);
+            max-width: 620px;
             aspect-ratio: auto;
         }
 
+        .about-me__box-border {
+            padding: 10px;
+        }
+
         .about-me__box-border-inside {
-            padding: clamp(20px, 5vw, 40px);
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 16px 20px;
+        }
+
+        .about-me__photo-wrapper {
+            flex: 0 0 auto;
+            width: min(56%, 260px);
+            max-width: none;
+            margin: 0 auto 24px;
+        }
+
+        .about-me__photo {
+            border-width: 8px;
+        }
+
+        .about-me__text-content {
+            width: 100%;
+            height: auto;
+            margin: 0;
+        }
+
+        .about-me__title {
+            font-size: clamp(26px, 7vw, 40px);
+            padding: 8px 18px;
+        }
+
+        .about-me__title-add {
+            width: 100%;
+            font-size: clamp(22px, 6vw, 34px);
+            margin: 14px 0 10px;
+        }
+
+        .about-me__text {
+            display: block;
+            margin: 0 0 12px;
+            font-size: clamp(17px, 4.4vw, 22px);
+            line-height: 1.45;
+        }
+
+        .decor--wave,
+        .decor--shape {
+            display: none;
+        }
+
+        .decor--star {
+            width: 34%;
+            right: -12%;
+        }
+
+        .decor--apple {
+            width: 26%;
+            right: -10%;
         }
     }
-    
+
     // Когда ширина экрана больше 1440px
     @media (min-width: 1440px) {
         // Количество дополнительных пикселей сверх базовых 1440:
