@@ -1,9 +1,10 @@
+// Боковые точки навигации — только на ноутбуках и компьютерах (на телефоне они мешают контенту)
 .scroll-indicator {
+  display: none;
   position: fixed;
   right: 30px;
   top: 50%;
   transform: translateY(-50%);
-  display: flex;
   flex-direction: column;
   gap: 10px;
   z-index: 1000;
@@ -19,5 +20,11 @@
     &.active {
       background: #333;
     }
+  }
+}
+
+@media (min-width: 1025px) and (hover: hover) {
+  .scroll-indicator {
+    display: flex;
   }
 }
