@@ -1,6 +1,11 @@
 import { useEffect } from "react";
+import { SNAP_QUERY } from "../../hooks/useMediaQuery";
+
+const isSnapMode = () =>
+    typeof window.matchMedia === "function" && window.matchMedia(SNAP_QUERY).matches;
 
 function ScrollNavigation({ currentSection, setCurrentSection, totalSections }) {
+    // Ноутбуки и компьютеры: листание экран за экраном (колесо мыши, стрелки)
     useEffect(() => {
         let isThrottled = false;
 
@@ -15,7 +20,7 @@ function ScrollNavigation({ currentSection, setCurrentSection, totalSections }) 
         const isPopupOpen = () => Boolean(document.querySelector(".popup"));
 
         const handleScroll = (e) => {
-            if (isPopupOpen()) return;
+            if (!isSnapMode() || isPopupOpen()) return;
             if (isThrottled) return;
             isThrottled = true;
 
@@ -31,7 +36,7 @@ function ScrollNavigation({ currentSection, setCurrentSection, totalSections }) 
         };
 
         const handleKeyDown = (e) => {
-            if (isPopupOpen()) return;
+            if (!isSnapMode() || isPopupOpen()) return;
             if (isThrottled) return;
             const key = e.key.toLowerCase();
 
@@ -63,6 +68,31 @@ function ScrollNavigation({ currentSection, setCurrentSection, totalSections }) 
             window.removeEventListener("keydown", handleKeyDown);
         };
     }, [currentSection, setCurrentSection, totalSections]);
+
+    // Телефоны и планшеты: обычная прокрутка, а текущий раздел определяем по положению страницы
+    // (нужно для подсветки пункта в меню)
+    useEffect(() => {
+        const update = () => {
+            if (isSnapMode()) return;
+            const sections = document.querySelectorAll(".slide-section");
+            const middle = window.innerHeight / 2;
+            let index = 0;
+            sections.forEach((section, i) => {
+                const rect = section.getBoundingClientRect();
+                if (rect.top <= middle && rect.bottom > middle) index = i;
+            });
+            setCurrentSection(index);
+        };
+
+        window.addEventListener("scroll", update, { passive: true });
+        window.addEventListener("resize", update);
+        update();
+
+        return () => {
+            window.removeEventListener("scroll", update);
+            window.removeEventListener("resize", update);
+        };
+    }, [setCurrentSection]);
 
     return null;
 }
