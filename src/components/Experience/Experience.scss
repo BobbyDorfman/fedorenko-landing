@@ -155,25 +155,19 @@
 
 // Стили окна (попапа) лежат в components/Popup/Popup.scss
 
-// Телефоны и планшеты: раздел растягивается на весь экран (цвет фона без белых полос)
-// и может быть выше экрана — тогда страница просто прокручивается.
-// Условие — противоположность режиму «экран за экраном» (SNAP_QUERY).
+// Телефоны и планшеты. Условие — противоположность режиму «экран за экраном» (SNAP_QUERY).
+// Отступы сверху и снизу задаются в src/styles/global.scss (одинаковые для всех разделов).
 @media not all and (min-width: 1025px) and (hover: hover) {
     .experience {
-        min-height: 100vh;
-        min-height: 100dvh;
         align-items: center;
         position: relative; // декор позиционируется относительно раздела (как на компьютере)
         overflow: hidden;   // и не выходит за экран
-        padding: 90px 0 50px;
     }
 }
 
 // Телефон (до 767px): карточки показываются слайдером (см. CardSlider)
 @media screen and (max-width: 767px) {
     .experience {
-        padding: 72px 0 36px;
-
         &__box {
             width: 100%;
         }
@@ -209,7 +203,7 @@
         // Кнопка «Мои сертификаты» — под слайдером, на всю ширину
         &__certificates {
             width: 100%;
-            padding: 4px 16px 0;
+            padding: 22px 16px 0; // воздух между точками слайдера и кнопкой
             position: relative;
             z-index: 2;
         }
