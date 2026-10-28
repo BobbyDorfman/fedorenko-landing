@@ -1,0 +1,91 @@
+.card-slider {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+
+    &__track {
+        position: relative; // нужно для расчёта положения карточек
+        display: flex;
+        gap: 12px;
+        padding: 4px 0 12px;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+
+        &:focus-visible {
+            outline: 3px solid #1a73e8;
+            outline-offset: 2px;
+        }
+    }
+
+    // Карточка занимает 84% ширины, поэтому справа и слева видны края соседних:
+    // так понятно, что можно листать
+    &__slide {
+        flex: 0 0 84%;
+        display: flex;
+        scroll-snap-align: center;
+        scroll-snap-stop: always;
+
+        > * {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        &:first-child {
+            margin-left: 8%;
+        }
+
+        &:last-child {
+            margin-right: 8%;
+        }
+    }
+
+    &__dots {
+        display: flex;
+        justify-content: center;
+        gap: 2px;
+        margin-top: 4px;
+    }
+
+    // Область нажатия 28×28, сама точка меньше
+    &__dot {
+        position: relative;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        background: none;
+        border: 0;
+        cursor: pointer;
+
+        &::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 12px;
+            height: 12px;
+            transform: translate(-50%, -50%);
+            border: 2px solid #000;
+            border-radius: 50%;
+            background: transparent;
+            transition: width 0.2s ease, background-color 0.2s ease;
+        }
+
+        &.is-active::before {
+            width: 24px;
+            border-radius: 8px;
+            background: #000;
+        }
+
+        &:focus-visible {
+            outline: 3px solid #1a73e8;
+            border-radius: 8px;
+        }
+    }
+}
