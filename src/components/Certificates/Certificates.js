@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "./Certificates.scss";
+import useMediaQuery from "../../hooks/useMediaQuery";
 
 // Все файлы из папки src/certificates подхватываются автоматически при сборке.
 // Чтобы добавить сертификат — достаточно положить файл в эту папку.
@@ -23,6 +24,9 @@ const getTitle = (key) =>
         .trim();
 
 function Certificates() {
+    // На телефонах и планшетах PDF внутри страницы часто не открывается
+    // (iPhone показывает только первую страницу) — даём кнопку «Открыть PDF»
+    const isTouch = useMediaQuery("(pointer: coarse)");
     const items = useMemo(
         () =>
             filesContext
@@ -103,7 +107,21 @@ function Certificates() {
                 <h4 className="certificates__viewer-title">{active.title}</h4>
 
                 <div className="certificates__stage">
-                    {active.isPdf ? (
+                    {active.isPdf && isTouch ? (
+                        <div className="certificates__pdf-open">
+                            <span className="certificates__thumb certificates__thumb--pdf" aria-hidden="true">
+                                PDF
+                            </span>
+                            <a
+                                className="certificates__btn certificates__btn--link"
+                                href={active.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                Открыть документ
+                            </a>
+                        </div>
+                    ) : active.isPdf ? (
                         <iframe
                             key={active.url}
                             className="certificates__pdf"
@@ -120,12 +138,14 @@ function Certificates() {
                     )}
                 </div>
 
-                <p className="certificates__hint">
-                    <a href={active.url} target="_blank" rel="noopener noreferrer">
-                        Открыть в новой вкладке
-                    </a>
-                    {active.isPdf && " — если документ не отображается выше"}
-                </p>
+                {!(active.isPdf && isTouch) && (
+                    <p className="certificates__hint">
+                        <a href={active.url} target="_blank" rel="noopener noreferrer">
+                            Открыть в новой вкладке
+                        </a>
+                        {active.isPdf && " — если документ не отображается выше"}
+                    </p>
+                )}
             </div>
         );
     }
