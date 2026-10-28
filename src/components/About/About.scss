@@ -126,23 +126,63 @@
         }
     }
 
-    @media (max-width: 768px) {
+    // Телефон и планшет в вертикальном положении (до 900px): всё в одну колонку
+    @media (max-width: 900px) {
         .about__content {
             flex-direction: column;
+            flex-wrap: nowrap;
             align-items: center;
+            gap: 56px;
+            padding: 84px 20px 56px;
         }
 
-        .about__box,
-        .about__photo-wrapper {
-            flex: 1 1 100%;
+        .about__box {
+            flex: 0 0 auto;
+            width: 100%;
+            max-width: 560px;
             aspect-ratio: auto;
+        }
+
+        .about__box-border {
+            padding: 12px;
         }
 
         .about__box-border-inside {
             padding: clamp(20px, 5vw, 40px);
         }
+
+        .about__title {
+            font-size: clamp(28px, 7.5vw, 48px);
+        }
+
+        .about__text {
+            font-size: clamp(18px, 4.5vw, 28px);
+        }
+
+        .about__photo-wrapper {
+            flex: 0 0 auto;
+            width: min(62%, 320px);
+            max-width: none;
+            aspect-ratio: 451.4 / 481.4;
+        }
+
+        .decor--pen {
+            width: 22%;
+            bottom: -14%;
+            left: 80%;
+        }
+
+        .decor--wave {
+            width: clamp(90px, 26vw, 160px);
+        }
+
+        .decor--star {
+            width: clamp(44px, 12vw, 80px);
+            top: -12%;
+            right: 82%;
+        }
     }
-    
+
     // Когда ширина экрана больше 1440px
     @media (min-width: 1440px) {
         // Количество дополнительных пикселей сверх базовых 1440:
